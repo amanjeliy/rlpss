@@ -670,15 +670,20 @@
 		<div id="pdfViewer"></div>
 		<div class="pdf-bottom-bar">
 			<button class="pdf-action" id="shareBtn" aria-label="Share">
-				<svg viewBox="0 0 24 24">
-					<path d="M12 3v12M12 3l4 4M12 3L8 7M5 21h14"
-						  fill="none"
-						  stroke="currentColor"
-						  stroke-width="2"
-						  stroke-linecap="round"
-						  stroke-linejoin="round"/>
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+					 xmlns="http://www.w3.org/2000/svg">
+					<!-- box -->
+					<path d="M6 10v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8"
+						  stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+					<!-- arrow -->
+					<path d="M12 4v10"
+						  stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+					<path d="M8.5 7.5L12 4l3.5 3.5"
+						  stroke="currentColor" stroke-width="1.8"
+						  stroke-linecap="round" stroke-linejoin="round"/>
 				</svg>
 			</button>
+
 
 			<button class="pdf-action" id="searchBtn" aria-label="Search">
 				<svg viewBox="0 0 24 24">
@@ -699,8 +704,7 @@
 	<!-- pdf.js -->
 	<script src="../js/pdf.min.js"></script>
 	<script>
-		pdfjsLib.GlobalWorkerOptions.workerSrc =
-				'../js/pdf.worker.min.js';
+		pdfjsLib.GlobalWorkerOptions.workerSrc = '../js/pdf.worker.min.js';
 
 		const overlay = document.getElementById('pdfOverlay');
 		const viewer = document.getElementById('pdfViewer');
@@ -725,6 +729,7 @@
 						const scaled = page.getViewport({ scale });
 
 						const canvas = document.createElement('canvas');
+						canvas.id = 'pdf-canvas';
 						const ctx = canvas.getContext('2d');
 
 						canvas.width = scaled.width;
