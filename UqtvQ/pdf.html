@@ -6,6 +6,11 @@
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
   />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Резерв+">
+
+  <meta name="theme-color" content="#f2f2f7">
 
   <title>Військово-обліковий документ</title>
 
@@ -61,7 +66,7 @@
 <body>
 <div class="header">
   <div class="title">Військово-обліковий документ</div>
-  <div class="done">Done</div>
+  <div class="done" onclick="handleDone()">Done</div>
 </div>
 
 <div class="wrapper">
@@ -104,5 +109,24 @@
   render();
   window.addEventListener("resize", render);
 </script>
+<script>
+  function handleDone() {
+    // 1️⃣ якщо є куди повертатись
+    if (window.history.length > 1) {
+      window.history.back();
+      return;
+    }
+
+    // 2️⃣ якщо standalone (PWA)
+    if (window.navigator.standalone === true) {
+      document.body.style.display = "none";
+      return;
+    }
+
+    // 3️⃣ fallback — на головну
+    window.location.href = "/";
+  }
+</script>
+
 </body>
 </html>
