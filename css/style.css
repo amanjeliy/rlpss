@@ -845,6 +845,7 @@ span.ver {
 	position: absolute;
 	top: calc(56px + env(safe-area-inset-top));
 	bottom: env(safe-area-inset-bottom);
+	padding-bottom: 80px;
 	left: 0;
 	right: 0;
 	overflow-y: auto;
@@ -855,4 +856,34 @@ span.ver {
 	width: 100% !important;
 	height: auto !important;
 	display: block;
+}
+
+.pdf-bottom-bar {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 64px;
+	padding: 0 28px env(safe-area-inset-bottom);
+	background: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	border-top-left-radius: 18px;
+	border-top-right-radius: 18px;
+	box-shadow: 0 -6px 18px rgba(0,0,0,.08);
+	z-index: 20;
+}
+
+.pdf-action {
+	background: none;
+	border: none;
+	padding: 8px;
+	color: #0a84ff; /* iOS blue */
+	cursor: pointer;
+}
+
+.pdf-action svg {
+	width: 26px;
+	height: 26px;
 }
