@@ -842,15 +842,10 @@ span.ver {
 }
 
 #pdfViewer {
-	position: absolute;
-	top: calc(56px + env(safe-area-inset-top));
-	bottom: env(safe-area-inset-bottom);
-	padding-bottom: 80px;
-	left: 0;
-	right: 0;
-	overflow-y: auto;
-	-webkit-overflow-scrolling: touch;
-	touch-action: pinch-zoom;
+	overflow: auto;
+	touch-action: none;
+	overscroll-behavior: contain;
+	background: #fff;
 }
 
 #pdfViewer canvas {
