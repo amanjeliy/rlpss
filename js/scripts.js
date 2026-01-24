@@ -36,7 +36,7 @@ $(document).ready(function () {
   function flipCard() {
     $('.wrap-flipcard').toggleClass('flipped');
   }
-  const wrapFlipcard = $('.wrap-flipcard')[0]; 
+  const wrapFlipcard = $('.wrap-flipcard')[0];
   const hammer = new Hammer(wrapFlipcard);
   hammer.on('swipeleft swiperight', function (event) {
     flipCard();
@@ -44,6 +44,45 @@ $(document).ready(function () {
   $('.wrap-flipcard').on('click', function () {
     flipCard();
   });
+});
+
+$(document).ready(function () {
+    const elements = document.querySelectorAll('.notificationText');
+    if (!elements.length) return;
+
+    const pad = n => String(n).padStart(2, '0');
+
+    const getStableRandomTime = () => {
+        const now = new Date(Date.now() - 4 * 60 * 60 * 1000);
+
+        // інтервал стабільності (у хвилинах)
+        const SLOT_MINUTES = 15;
+
+        // номер часового "вікна"
+        const slot =
+          Math.floor(
+            (now.getHours() * 60 + now.getMinutes()) / SLOT_MINUTES
+          );
+
+        // простий детермінований псевдорандом
+        const randomMinute = (slot * 37) % 60;
+
+        now.setMinutes(randomMinute, 0, 0);
+
+        return (
+          `${pad(now.getHours())}:${pad(now.getMinutes())} | ` +
+          `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()}`
+        );
+    };
+
+    const time = getStableRandomTime();
+
+    elements.forEach(el => {
+        el.textContent = el.textContent.replace(
+          /\d{2}:\d{2}\s\|\s\d{2}\.\d{2}\.\d{4}/g,
+          time
+        );
+    });
 });
 
 $(document).ready(function() {
@@ -302,7 +341,7 @@ $(document).ready(function () {
 
         if (index === 0) {
             currentDate = new Date(); // текущая дата
-            currentDate.setHours(currentDate.getHours() - 5);
+            currentDate.setHours(currentDate.getHours() - 4);
         } 
         else {
             let minusDays = Math.floor(Math.random() * 3) + 1;
