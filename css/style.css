@@ -887,16 +887,3 @@ span.ver {
 	width: 26px;
 	height: 26px;
 }
-
-#pdf-overlay {
-	position: fixed;
-	inset: 0;
-	background: #fff;
-	display: none;
-	z-index: 9999;
-}
-
-#pdf-overlay embed {
-	width: 100%;
-	height: 100dvh;
-}
