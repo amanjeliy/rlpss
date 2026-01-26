@@ -464,14 +464,13 @@ span.ver {
 	position: absolute;
 	top: 30px;
 	left: 30px;
-}
-.button-prev .prev {
 	background: url(../img/arrow.png) no-repeat;
 	background-size: contain;
-    width: 30px;
-    height: 30px;
-    display: block;
+	width: 30px;
+	height: 30px;
+	display: block;
 }
+
 .popup-fullscreen-wrap .button a.popup-fullscreen-close,
 .popup-fullscreen-wrap .button a.popup-fullscreen-close-waiting {
 	background: #ee8e37;
