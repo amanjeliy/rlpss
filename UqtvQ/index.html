@@ -16,7 +16,6 @@
 	    Сталася помилка. Спробуйте пізніше
 	</div>
 
-	
 	<div class="loader">
 		<!-- FACE ID SCAN -->
 		<div class="badge scan faceid" id="scan">
@@ -710,6 +709,7 @@
 			</button>
 		</div>
 	</div>
+	<div id="privacy-blur"></div>
 <script src="../js/scripts.js"></script>
 	<!-- pdf.js -->
 	<script src="../js/pdf.min.js"></script>
@@ -843,6 +843,18 @@
 
 		container.addEventListener('touchend', () => {
 			lastDistance = null;
+		});
+
+		const blur = document.getElementById('privacy-blur');
+
+		document.addEventListener('visibilitychange', () => {
+			if (document.hidden) {
+				// App switch / background
+				blur.classList.add('active');
+			} else {
+				// Returned to app
+				blur.classList.remove('active');
+			}
 		});
 	</script>
 </body></html>

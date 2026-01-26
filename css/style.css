@@ -894,26 +894,10 @@ span.ver {
 	top:calc(env(safe-area-inset-top) + 18px);
 	left:50%;
 	transform:translateX(-50%);
-	width:86px;
-	height:86px;
+	width:120px;
+	height:120px;
 	background:#000;
-	border-radius:22px;
-	display:flex;
-	align-items:center;
-	justify-content:center;
-	z-index:9999;
-}
-
-/* ===== BASE BADGE ===== */
-.badge {
-	position:fixed;
-	top:calc(env(safe-area-inset-top) + 18px);
-	left:50%;
-	transform:translateX(-50%);
-	width:86px;
-	height:86px;
-	background:#000;
-	border-radius:22px;
+	border-radius:24px;
 	display:flex;
 	align-items:center;
 	justify-content:center;
@@ -933,8 +917,8 @@ span.ver {
 
 /* Face ID glyph — bright green */
 .faceid svg {
-	width:42px;
-	height:42px;
+	width:64px;
+	height:64px;
 	stroke:#6CFF77;   /* bright green */
 	stroke-width:1.7;
 	fill:none;
@@ -967,8 +951,8 @@ span.ver {
 }
 
 .ring {
-	width:54px;
-	height:54px;
+	width:64px;
+	height:64px;
 	border-radius:50%;
 	border:4px solid #6CFF77;
 	display:flex;
@@ -981,4 +965,20 @@ span.ver {
 	font-size:32px;
 	font-weight:700;
 	margin-top:-2px;
+}
+
+#privacy-blur {
+	position:fixed;
+	inset:0;
+	backdrop-filter: blur(18px);
+	-webkit-backdrop-filter: blur(18px);
+	background: rgba(0,0,0,0.25);
+	opacity:0;
+	pointer-events:none;
+	transition: opacity .2s ease;
+	z-index:99999;
+}
+
+#privacy-blur.active {
+	opacity:1;
 }
