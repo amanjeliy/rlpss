@@ -793,34 +793,24 @@
 
 		const blur = document.getElementById('privacy-blur');
 
-		/* ===== 1. PRE-EMPTIVE BLUR (before snapshot) ===== */
+		document.addEventListener('visibilitychange', () => {
+			if (document.hidden) {
+				// App switch / background
+				blur.classList.add('active');
+			} else {
+				// Returned to app
+				blur.classList.remove('active');
+			}
+		});
+
 		document.addEventListener('touchstart', e => {
 			const y = e.touches[0].clientY;
 			const h = window.innerHeight;
 
+			// Bottom swipe zone (home indicator area)
 			if (y > h - 80) {
 				blur.classList.add('active');
 			}
 		}, { passive: true });
-
-		/* ===== 2. REAL BACKGROUND ===== */
-		document.addEventListener('visibilitychange', () => {
-			if (document.hidden) {
-				blur.classList.add('active');
-			}
-		});
-
-		/* ===== 3. RETURN TO APP (MULTIPLE ESCAPES) ===== */
-		function clearBlur() {
-			blur.classList.remove('active');
-		}
-
-		// iOS sometimes fires one but not the others
-		window.addEventListener('focus', clearBlur);
-		window.addEventListener('pageshow', clearBlur);
-
-		// user interaction = app is active
-		document.addEventListener('touchstart', clearBlur, { passive: true });
-		document.addEventListener('mousedown', clearBlur);
 	</script>
 </body></html>
