@@ -968,13 +968,17 @@ span.ver {
 
 #privacy-blur {
 	position:fixed;
-	inset:0;
+	top:calc(-1 * env(safe-area-inset-top));
+	left:0;
+	right:0;
+	bottom:0;
+
 	backdrop-filter: blur(18px);
 	-webkit-backdrop-filter: blur(18px);
-	background: rgba(0,0,0,0.25);
+	background: rgba(0,0,0,0.35);
+
 	opacity:0;
-	pointer-events:none;
-	transition: opacity .2s ease;
+	transition:.2s;
 	z-index:99999;
 }
 
