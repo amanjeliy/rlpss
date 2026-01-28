@@ -808,90 +808,125 @@ span.ver {
 	padding-bottom: 330px !important;
   }
 }
+
+/* --- iOS PDF VIEWER STYLES (MATCHING SCREENSHOT) --- */
+
 #pdfOverlay {
 	position: fixed;
-	inset: 0;
-	background: #fff;
-	z-index: 999999;
-	display: none;
-	padding-top: env(safe-area-inset-top);
-	padding-bottom: env(safe-area-inset-bottom);
-}
-
-.pdf-header {
-	position: sticky;
 	top: 0;
-	height: 48px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: #fff;
-	z-index: 10;
-}
-
-.pdf-header button {
-	background: none;
-	border: none;
-	color: #4da3ff;
-	font-size: 17px;
-}
-
-.pdf-title {
-	color: #000;
-	font-size: 16px;
-	background: #fff;
-	font-weight: 500;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	max-width: 70%;
-}
-
-#pdfViewer {
-	overflow: auto;
-	touch-action: none;
-	overscroll-behavior: contain;
-	background: #fff;
-}
-
-#pdf-canvas {
-	display: block;
-}
-
-#pdfViewer canvas {
-	width: 100% !important;
-	height: auto !important;
-	display: block;
-}
-
-.pdf-bottom-bar {
-	position: fixed;
 	left: 0;
-	right: 0;
-	bottom: 0;
-	height: 64px;
-	padding: 0 28px env(safe-area-inset-bottom);
-	background: #fff;
+	width: 100%;
+	height: 100%;
+	background-color: #f2f2f7; /* iOS System Gray 6 */
+	z-index: 99990; /* High z-index */
+	display: none; /* Hidden by default */
+	flex-direction: column;
+}
+
+/* TOP HEADER */
+.pdf-header {
+	background: rgba(249, 249, 249, 0.94); /* Translucent white */
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
+	border-bottom: 0.5px solid #c6c6c8;
+
+	padding-top: env(safe-area-inset-top); /* Handle Notch */
+	height: 44px; /* Standard Nav Bar Height */
+
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	border-top-left-radius: 18px;
-	border-top-right-radius: 18px;
-	box-shadow: 0 -6px 18px rgba(0,0,0,.08);
+	padding-left: 16px;
+	padding-right: 16px;
+	flex-shrink: 0;
+	z-index: 20;
+}
+
+/* Title Styling */
+.pdf-title-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 1;
+}
+
+.pdf-main-title {
+	font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+	font-size: 17px;
+	font-weight: 600;
+	color: #000;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Done Button */
+#pdfDone {
+	background: none;
+	border: none;
+	color: #007aff; /* iOS Blue */
+	font-size: 17px;
+	font-weight: 700; /* Bold as in screenshot */
+	cursor: pointer;
+	padding: 0;
+	width: 60px; /* Width to match spacer for centering */
+	text-align: right;
+}
+
+/* PDF CANVAS CONTAINER */
+#pdfViewer {
+	flex: 1;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+	display: flex;
+	justify-content: center;
+	padding: 20px 10px 80px 10px;
+
+	/* CHANGE THIS LINE */
+	touch-action: pan-x pan-y; /* Allows scrolling, but lets JS handle pinch */
+
+	position: relative; /* Needed for absolute positioning of canvas if we zoom */
+}
+
+/* The Actual PDF Page */
+#pdf-canvas {
+	box-shadow: 0 4px 24px rgba(0,0,0,0.12); /* Drop shadow like in screenshot */
+	max-width: 100%;
+	height: auto;
+	display: block;
+	margin-bottom: 20px;
+}
+
+/* BOTTOM TOOLBAR */
+.pdf-bottom-bar {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	background: rgba(249, 249, 249, 0.94);
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
+	border-top: 0.5px solid #c6c6c8;
+
+	padding-bottom: env(safe-area-inset-bottom); /* Handle Home Indicator */
+	height: 44px; /* Standard Toolbar Height */
+
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding-left: 20px;
+	padding-right: 20px;
+	box-sizing: border-box;
 	z-index: 20;
 }
 
 .pdf-action {
 	background: none;
 	border: none;
-	padding: 8px;
-	color: #0a84ff; /* iOS blue */
-	cursor: pointer;
-}
-
-.pdf-action svg {
-	width: 26px;
-	height: 26px;
+	padding: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 /* ===== BADGE BASE ===== */
