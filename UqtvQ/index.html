@@ -676,34 +676,41 @@
     </div>
 	<div id="pdfOverlay">
 		<div class="pdf-header">
-			<div style="width: 60px;"></div>
-
-			<div class="pdf-title-container">
-				<span class="pdf-main-title">Військово-обліковий документ</span>
-				<svg width="10" height="6" viewBox="0 0 12 7" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 6px; opacity: 0.3;">
-					<path d="M1 1L6 6L11 1"></path>
-				</svg>
+			<div class="pdf-title">Військово-обліковий документ</div>
+<!--			<div style="width:48px"></div>-->
+			<div class="container-text-align">
+				<button id="pdfDone" style="text-align: right">Done</button>
 			</div>
-
-			<button id="pdfDone">Done</button>
 		</div>
-
-		<div id="pdfViewer">
-		</div>
-
+		<div id="pdfViewer"></div>
 		<div class="pdf-bottom-bar">
-			<button class="pdf-action" id="shareBtn">
-				<svg width="22" height="28" viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-					<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-					<polyline points="16 6 12 2 8 6"></polyline>
-					<line x1="12" y1="2" x2="12" y2="15"></line>
+			<button class="pdf-action" id="shareBtn" aria-label="Share">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+					 xmlns="http://www.w3.org/2000/svg">
+					<!-- box -->
+					<path d="M6 10v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8"
+						  stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+					<!-- arrow -->
+					<path d="M12 4v10"
+						  stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+					<path d="M8.5 7.5L12 4l3.5 3.5"
+						  stroke="currentColor" stroke-width="1.8"
+						  stroke-linecap="round" stroke-linejoin="round"/>
 				</svg>
 			</button>
 
-			<button class="pdf-action" id="searchBtn">
-				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-					<circle cx="11" cy="11" r="8"></circle>
-					<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+
+			<button class="pdf-action" id="searchBtn" aria-label="Search">
+				<svg viewBox="0 0 24 24">
+					<circle cx="11" cy="11" r="7"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"/>
+					<path d="M21 21l-4.35-4.35"
+						  fill="none"
+						  stroke="currentColor"
+						  stroke-width="2"
+						  stroke-linecap="round"/>
 				</svg>
 			</button>
 		</div>
@@ -713,170 +720,135 @@
 	<!-- pdf.js -->
 	<script src="../js/pdf.min.js"></script>
 	<script>
-		// --- PDF VIEWER LOGIC ---
 		pdfjsLib.GlobalWorkerOptions.workerSrc = '../js/pdf.worker.min.js';
 
-		const pdfOverlay = document.getElementById('pdfOverlay');
-		const pdfViewer = document.getElementById('pdfViewer');
+		const overlay = document.getElementById('pdfOverlay');
+		const viewer = document.getElementById('pdfViewer');
+
+		document.getElementById('menu-2-1').addEventListener('click', () => {
+			openPdf('vod.pdf'); // твій PDF
+		});
+
+		document.getElementById('pdfDone').addEventListener('click', closePdf);
 		let pdfDoc = null;
-		let pageNum = 1;
-		let canvas = null;
-		let ctx = null;
+		let currentPage = null;
+		let currentScale = 1;
 
-		// Zoom State
-		let currentScale = 1.0;
-		let isPinching = false;
-		let startDist = 0;
-		let startScale = 1.0;
+		function openPdf(url) {
+			overlay.style.display = 'block';
+			viewer.innerHTML = '';
 
-		// 1. Open PDF
-		function openPdfViewer(url) {
-			pdfOverlay.style.display = 'flex';
-			pdfViewer.innerHTML = '';
-
-			canvas = document.createElement('canvas');
+			const canvas = document.createElement('canvas');
 			canvas.id = 'pdf-canvas';
-			pdfViewer.appendChild(canvas);
-			ctx = canvas.getContext('2d');
+			viewer.appendChild(canvas);
 
-			// Reset Zoom
-			currentScale = 1.0;
-
-			pdfjsLib.getDocument(url).promise.then(function(pdfDoc_) {
-				pdfDoc = pdfDoc_;
-				renderPage(pageNum);
-			}).catch(function(error) {
-				console.error(error);
+			pdfjsLib.getDocument(url).promise.then(pdf => {
+				pdfDoc = pdf;
+				return pdf.getPage(1);
+			}).then(page => {
+				currentPage = page;
+				currentScale = 1;
+				renderPdf();
 			});
 		}
 
-		// 2. Render Page (High Quality)
-		function renderPage(num) {
-			pdfDoc.getPage(num).then(function(page) {
-				// Calculate scale to fit width with margins
-				const viewportRaw = page.getViewport({scale: 1});
-				const availableWidth = pdfViewer.clientWidth - 30; // Padding
+		function renderPdf() {
+			if (!currentPage) return;
 
-				// Base scale is "Fit Width" multiplied by our Zoom Level
-				const baseScale = availableWidth / viewportRaw.width;
-				const finalScale = baseScale * currentScale;
+			const canvas = document.getElementById('pdf-canvas');
+			const ctx = canvas.getContext('2d');
 
-				const dpr = window.devicePixelRatio || 1;
-				const viewport = page.getViewport({scale: finalScale});
+			const dpr = window.devicePixelRatio || 1;
+			const viewport = currentPage.getViewport({ scale: currentScale });
 
-				// Set dimensions
-				canvas.width = Math.floor(viewport.width * dpr);
-				canvas.height = Math.floor(viewport.height * dpr);
+			canvas.width = viewport.width * dpr;
+			canvas.height = viewport.height * dpr;
 
-				// CSS dimensions match the logical pixels (crisp text)
-				canvas.style.width = Math.floor(viewport.width) + "px";
-				canvas.style.height = Math.floor(viewport.height) + "px";
+			canvas.style.width = viewport.width + 'px';
+			canvas.style.height = viewport.height + 'px';
 
-				// Reset transforms
-				canvas.style.transform = 'none';
-				canvas.style.transformOrigin = 'center top';
+			ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-				const transform = [dpr, 0, 0, dpr, 0, 0];
-
-				page.render({
-					canvasContext: ctx,
-					transform: transform,
-					viewport: viewport
-				});
-			});
+			currentPage.render({ canvasContext: ctx, viewport });
 		}
 
-		// 3. Close Viewer
-		function closePdfViewer() {
-			pdfOverlay.style.display = 'none';
-			pdfDoc = null;
-		}
+		(() => {
+			const viewer = document.getElementById('pdfViewer');
+			const canvas = document.getElementById('pdf-canvas');
 
-		// --- PINCH TO ZOOM LOGIC (PWA FIX) ---
-		const viewerContainer = document.getElementById('pdfViewer');
+			let startDistance = 0;
+			let startScale = 1;
+			let tempScale = 1;
+			let pinching = false;
 
-		viewerContainer.addEventListener('touchstart', (e) => {
-			if (e.touches.length === 2) {
-				// Start Pinching
-				isPinching = true;
-				e.preventDefault(); // Stop browser interference
-
-				// Calculate distance between fingers
-				startDist = Math.hypot(
-						e.touches[0].pageX - e.touches[1].pageX,
-						e.touches[0].pageY - e.touches[1].pageY
-				);
-				startScale = currentScale;
+			function distance(touches) {
+				const dx = touches[0].clientX - touches[1].clientX;
+				const dy = touches[0].clientY - touches[1].clientY;
+				return Math.hypot(dx, dy);
 			}
-		}, { passive: false });
 
-		viewerContainer.addEventListener('touchmove', (e) => {
-			if (isPinching && e.touches.length === 2) {
+			viewer.addEventListener('touchstart', e => {
+				if (e.touches.length !== 2) return;
+
+				e.preventDefault();
+				pinching = true;
+
+				startDistance = distance(e.touches);
+				startScale = currentScale; // ← ВЖЕ ІСНУЮЧА змінна
+				tempScale = 1;
+
+				canvas.style.transformOrigin = 'center center';
+				canvas.style.willChange = 'transform';
+			}, { passive: false });
+
+			viewer.addEventListener('touchmove', e => {
+				if (!pinching || e.touches.length !== 2) return;
+
 				e.preventDefault();
 
-				const dist = Math.hypot(
-						e.touches[0].pageX - e.touches[1].pageX,
-						e.touches[0].pageY - e.touches[1].pageY
-				);
+				const d = distance(e.touches);
+				tempScale = Math.min(3, Math.max(0.8, d / startDistance));
 
-				// Calculate new temporary scale
-				const zoomFactor = dist / startDist;
-				let tempScale = startScale * zoomFactor;
+				canvas.style.transform = `scale(${tempScale})`;
+			}, { passive: false });
 
-				// Limit Zoom (0.8x to 3.0x)
-				tempScale = Math.min(3.0, Math.max(0.8, tempScale));
+			viewer.addEventListener('touchend', () => {
+				if (!pinching) return;
+				pinching = false;
 
-				// Apply visual transform immediately (Fast)
-				// We use the ratio between temp and start because the canvas is already rendered at startScale
-				const visualScale = tempScale / startScale;
+				canvas.style.transform = 'none';
+				canvas.style.willChange = 'auto';
 
-				if(canvas) {
-					canvas.style.transform = `scale(${visualScale})`;
-					canvas.style.transformOrigin = 'center center';
-				}
-			}
-		}, { passive: false });
+				currentScale = Math.min(3, Math.max(0.8, startScale * tempScale));
+				renderPdf(); // 🔥 ОДИН render ПІСЛЯ жесту
+			});
+		})();
 
-		viewerContainer.addEventListener('touchend', (e) => {
-			if (isPinching && e.touches.length < 2) {
-				isPinching = false;
+		function closePdf() {
+			overlay.style.display = 'none';
+			viewer.innerHTML = '';
+		}
 
-				// Commit the zoom (Re-render sharp text)
-				// We need to read the transform to know where we ended up
-				if (canvas) {
-					const style = window.getComputedStyle(canvas);
-					const matrix = new WebKitCSSMatrix(style.transform);
-
-					// Update global scale state
-					currentScale = startScale * matrix.a; // matrix.a is the scale X value
-
-					// Clamp limits again just in case
-					currentScale = Math.min(3.0, Math.max(0.8, currentScale));
-
-					// Re-render at high resolution
-					if(pdfDoc) renderPage(pageNum);
-				}
-			}
-		});
-
-		// --- MENU LISTENERS ---
-		document.getElementById('menu-2-1').addEventListener('click', function(e) {
-			e.preventDefault();
-			$('.popup-fullmenu').removeClass('active');
-			$('.overlay').fadeOut();
-			// REPLACE 'vod.pdf' WITH YOUR FILE NAME
-			openPdfViewer('vod.pdf');
-		});
-
-		document.getElementById('pdfDone').addEventListener('click', closePdfViewer);
-
-		document.getElementById('shareBtn').addEventListener('click', function() {
+		document.getElementById('shareBtn').onclick = async () => {
 			if (navigator.share) {
-				navigator.share({
-					title: 'Військово-обліковий документ',
+				await navigator.share({
+					title: document.title,
 					url: window.location.href
 				});
 			}
+		};
+
+		document.getElementById('searchBtn').onclick = () => {
+			console.log('Search clicked');
+		};
+
+		let lastDistance = null;
+
+		const container = document.querySelector('#pdfViewer');
+
+		container.addEventListener('touchend', () => {
+			lastDistance = null;
 		});
 	</script>
 </body></html>
