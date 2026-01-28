@@ -40,48 +40,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 3000);
 });
 
-// 2. App Switcher Logic
-function lockAppForSwitcher() {
-    if(!loader) initElements();
-
-    if(loader) {
-        loader.style.display = 'block';
-        loader.classList.add('locked');
-
-        // Reset Box Visibility
-        if(faceIdBox) faceIdBox.classList.remove('fade-out');
-
-        // Reset Icons
-        if(faceSvg) { faceSvg.style.display = 'block'; }
-        if(successSvg) { successSvg.classList.remove('visible'); }
-    }
-    document.body.classList.add('app-locked');
-    void document.body.offsetWidth; // Force Repaint
-}
-
-// 3. Re-Unlock Logic
-function unlockAppFromSwitcher() {
-    if(!loader) initElements();
-
-    setTimeout(() => {
-        // Show Success
-        if(faceSvg) faceSvg.style.display = 'none';
-        if(successSvg) successSvg.classList.add('visible');
-
-        // Hide Box First
-        setTimeout(() => {
-            if(faceIdBox) faceIdBox.classList.add('fade-out');
-
-            // Then Hide Loader
-            setTimeout(() => {
-                if(loader) loader.style.display = 'none';
-                document.body.classList.remove('app-locked');
-            }, 400);
-
-        }, 800);
-    }, 500);
-}
-
 /* END OF REPLACEMENT BLOCK */
 
 $('.m_Copydevice').on('click', function() {

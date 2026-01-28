@@ -850,18 +850,5 @@
 		container.addEventListener('touchend', () => {
 			lastDistance = null;
 		});
-
-		window.addEventListener("blur", lockAppForSwitcher);
-		window.addEventListener("pagehide", lockAppForSwitcher);
-
-		document.addEventListener("visibilitychange", () => {
-			if (document.hidden) {
-				lockAppForSwitcher();
-			} else {
-				if (loader && loader.style.display !== 'none') {
-					unlockAppFromSwitcher();
-				}
-			}
-		});
 	</script>
 </body></html>
