@@ -990,6 +990,7 @@ span.ver {
 /* 1. The Black Box (Top Middle) */
 .faceid-box {
 	position: fixed;
+	top: 10px; /* Original Position */
 	top: calc(10px + env(safe-area-inset-top));
 	left: 50%;
 
