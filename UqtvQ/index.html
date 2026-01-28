@@ -48,19 +48,19 @@
 					<div class="t1">Резерв ID</div>
 					<div class="logo1"><img src="../img/logo1.png" /></div>
 				</div>
-
+				
 				<div class="data-section">
 
                 <div class="data-section-1">
 						<div class="user-photo" style="background-image: url(&quot;5yNRm.png&quot;);"></div>
 				</div>
-
-
+					
+					
 					<div class="data-section-2">
 						<div class="data">
 							<div class="data-title">Дата народження:</div>
 							<div class="data-result">29.07.1991</div>
-						</div>
+						</div> 
 						<div class="data">
 							<div class="data-title">Відстрочка до:</div>
 							<div class="data-result">03.05.2026</div> <!-- 07.08.2025 -->
@@ -68,14 +68,14 @@
 					</div>
 				</div>
 				<div class="footer">
-					<div class="notification">
+					<div class="notification"> 
 						<div class="marquee">
 						  <div class="track">
 						    <div class="content notificationText">
 						    	  Документ оновлено о 18:33 | 02.12.2025 •  Документ оновлено о 18:33 | 02.12.2025 •  Документ оновлено о 18:33 | 02.12.2025 •  Документ оновлено о 18:33 | 02.12.2025 •   Документ оновлено о 18:33 | 02.12.2025 •  Документ оновлено о 18:33 | 02.12.2025 •  Документ оновлено о 18:33 | 02.12.2025 •  Документ оновлено о 18:33 | 02.12.2025 •   Документ оновлено о 18:33 | 02.12.2025 •  Документ оновлено о 18:33 | 02.12.2025 •  Документ оновлено о 18:33 | 02.12.2025 •  Документ оновлено о 18:33 | 02.12.2025 • </div>
 						  </div>
 						</div>
-					</div>
+					</div> 
 					<div class="wrap-footer">
 						<div class="data-footer">
 							<div class="data-title-name">Військовозобов'язаний</div>
@@ -109,7 +109,7 @@
 				<span class="ver">Версія 1.8.1</span>
 			</div>
 
-
+			
 				<ul>
 					<li class="m_Fix"><span id="Fix">Виправити дані онлайн</span></li>
 					<li class="m_Fines"><span id="Fines">Штрафи</span></li>
@@ -127,9 +127,9 @@
 					<li class="m_Camera"><span id="Camera">Сканувати документ</span></li>
 				</ul>
 
-
+			
 			<div class="exit-button">
-				<span id="exit">Вийти</span>
+				<span id="exit">Вийти</span> 
 			</div>
 
 			<div class="privacy-policy">
@@ -174,7 +174,7 @@
             <li id="menu-1">Переглянути документ</li>
 
             			    <li id="menu-2-1" class="download">Завантажити PDF</li>
-
+			
             <li id="menu-3">Оновити документ</li>
             <li id="menu-7">Розширені дані з реєстру</li>
             <li id="menu-4">Подати запит на відстрочку</li>
@@ -206,15 +206,15 @@
 			<!-- <hr> -->
 			<div class="data-section">
 
-
-
+				
+				
 				<div class="data-section-2">
 
 					<div class="wrap-info-1">
 						<div>Дата народження:<br />29.07.1991</div>
 						<div>РНОКПП:<br />3344714199</div>
 					</div>
-
+					
 				</div>
 			</div>
 
@@ -228,7 +228,7 @@
 			<div class="wrap-info">
 				<div>Тип відстрочки:<br />п.4 ч.1 ст.23</div>
 			</div>
-		</div>
+		</div> 
 		<div class="popup-wrap">
 			<div class="wrap-info">
 				<div style="width: 100%;">Постанова ВЛК:<br />придатний</div>
@@ -238,7 +238,7 @@
 				<div>Дата ВЛК</div>
 				<div>11.12.2024</div>
 			</div>
-		</div>
+		</div> 
 		<div class="popup-wrap">
 			<div class="wrap-info info2">
 				<div style="width: 100%;">ТЦК та СП:<br />Чернівецький міський територіальний центр комплектування та соціальної підтримки				</div>
@@ -265,8 +265,8 @@
 				<div>Телефон:<br />
 					<a href="tel:+380956074362">+380956074362</a>				</div>
 
-
-
+				
+				
 
 				<div>Адреса проживання:<br />
 					Україна, Чернівецька область, м. Чернівці, Орлика Пилипа, б. 9, кв. 20				</div>
@@ -676,28 +676,41 @@
     </div>
 	<div id="pdfOverlay">
 		<div class="pdf-header">
-			<div class="pdf-title">
-				<span class="main-title">Військово-обліковий документ</span>
-				<span class="sub-title">Резерв+</span>
+			<div class="pdf-title">Військово-обліковий документ</div>
+<!--			<div style="width:48px"></div>-->
+			<div class="container-text-align">
+				<button id="pdfDone" style="text-align: right">Done</button>
 			</div>
-			<button id="pdfDone">Done</button>
 		</div>
-
 		<div id="pdfViewer"></div>
-
 		<div class="pdf-bottom-bar">
-			<button class="pdf-action" id="shareBtn">
-				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-					<polyline points="16 6 12 2 8 6"></polyline>
-					<line x1="12" y1="2" x2="12" y2="15"></line>
+			<button class="pdf-action" id="shareBtn" aria-label="Share">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+					 xmlns="http://www.w3.org/2000/svg">
+					<!-- box -->
+					<path d="M6 10v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8"
+						  stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+					<!-- arrow -->
+					<path d="M12 4v10"
+						  stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+					<path d="M8.5 7.5L12 4l3.5 3.5"
+						  stroke="currentColor" stroke-width="1.8"
+						  stroke-linecap="round" stroke-linejoin="round"/>
 				</svg>
 			</button>
 
-			<button class="pdf-action" id="searchBtn">
-				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<circle cx="11" cy="11" r="8"></circle>
-					<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+
+			<button class="pdf-action" id="searchBtn" aria-label="Search">
+				<svg viewBox="0 0 24 24">
+					<circle cx="11" cy="11" r="7"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"/>
+					<path d="M21 21l-4.35-4.35"
+						  fill="none"
+						  stroke="currentColor"
+						  stroke-width="2"
+						  stroke-linecap="round"/>
 				</svg>
 			</button>
 		</div>
@@ -706,152 +719,136 @@
 <script src="../js/scripts.js"></script>
 	<!-- pdf.js -->
 	<script src="../js/pdf.min.js"></script>
-    <script>
-      // --- PDF VIEWER LOGIC ---
+	<script>
+		pdfjsLib.GlobalWorkerOptions.workerSrc = '../js/pdf.worker.min.js';
 
-      // 1. Setup global worker (Required for PDF.js)
-      // Ensure this path points to your actual pdf.worker.min.js file
-      pdfjsLib.GlobalWorkerOptions.workerSrc = '../js/pdf.worker.min.js';
+		const overlay = document.getElementById('pdfOverlay');
+		const viewer = document.getElementById('pdfViewer');
 
-      const pdfOverlay = document.getElementById('pdfOverlay');
-      const pdfViewer = document.getElementById('pdfViewer');
-      let pdfDoc = null;
-      let pageNum = 1;
-      let pageRendering = false;
-      let pageNumPending = null;
-      let scale = 1.5; // Initial Zoom Level (Higher = Crisper)
-      let canvas = null;
-      let ctx = null;
+		document.getElementById('menu-2-1').addEventListener('click', () => {
+			openPdf('vod.pdf'); // твій PDF
+		});
 
-      // 2. Open PDF Function
-      function openPdfViewer(url) {
-        pdfOverlay.style.display = 'flex';
+		document.getElementById('pdfDone').addEventListener('click', closePdf);
+		let pdfDoc = null;
+		let currentPage = null;
+		let currentScale = 1;
 
-        // Clear previous
-        pdfViewer.innerHTML = '';
-        canvas = document.createElement('canvas');
-        canvas.id = 'pdf-canvas';
-        pdfViewer.appendChild(canvas);
-        ctx = canvas.getContext('2d');
+		function openPdf(url) {
+			overlay.style.display = 'block';
+			viewer.innerHTML = '';
 
-        // Load PDF
-        pdfjsLib.getDocument(url).promise.then(function(pdfDoc_) {
-          pdfDoc = pdfDoc_;
-          renderPage(pageNum);
-        }).catch(function(error) {
-          console.error('Error loading PDF:', error);
-          closePdfViewer();
-        });
-      }
+			const canvas = document.createElement('canvas');
+			canvas.id = 'pdf-canvas';
+			viewer.appendChild(canvas);
 
-      // 3. Render Page Function
-      function renderPage(num) {
-        pageRendering = true;
+			pdfjsLib.getDocument(url).promise.then(pdf => {
+				pdfDoc = pdf;
+				return pdf.getPage(1);
+			}).then(page => {
+				currentPage = page;
+				currentScale = 1;
+				renderPdf();
+			});
+		}
 
-        // Fetch page
-        pdfDoc.getPage(num).then(function(page) {
+		function renderPdf() {
+			if (!currentPage) return;
 
-          // Adjust scale based on screen width to fit width initially
-          const viewportRaw = page.getViewport({scale: 1});
-          const desiredWidth = pdfViewer.clientWidth - 20; // minus padding
-          const scaleFit = desiredWidth / viewportRaw.width;
+			const canvas = document.getElementById('pdf-canvas');
+			const ctx = canvas.getContext('2d');
 
-          // Set scale (High DPI for crisp text)
-          const outputScale = window.devicePixelRatio || 1;
-          const viewport = page.getViewport({scale: scaleFit});
+			const dpr = window.devicePixelRatio || 1;
+			const viewport = currentPage.getViewport({ scale: currentScale });
 
-          canvas.width = Math.floor(viewport.width * outputScale);
-          canvas.height = Math.floor(viewport.height * outputScale);
-          canvas.style.width = Math.floor(viewport.width) + "px";
-          canvas.style.height = Math.floor(viewport.height) + "px";
+			canvas.width = viewport.width * dpr;
+			canvas.height = viewport.height * dpr;
 
-          const transform = outputScale !== 1
-            ? [outputScale, 0, 0, outputScale, 0, 0]
-            : null;
+			canvas.style.width = viewport.width + 'px';
+			canvas.style.height = viewport.height + 'px';
 
-          const renderContext = {
-            canvasContext: ctx,
-            transform: transform,
-            viewport: viewport
-          };
+			ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-          const renderTask = page.render(renderContext);
+			currentPage.render({ canvasContext: ctx, viewport });
+		}
 
-          // Wait for render to finish
-          renderTask.promise.then(function() {
-            pageRendering = false;
-            if (pageNumPending !== null) {
-              renderPage(pageNumPending);
-              pageNumPending = null;
-            }
-          });
-        });
-      }
+		(() => {
+			const viewer = document.getElementById('pdfViewer');
+			const canvas = document.getElementById('pdf-canvas');
 
-      // 4. Close Viewer
-      function closePdfViewer() {
-        pdfOverlay.style.display = 'none';
-        pdfDoc = null; // Free memory
-      }
+			let startDistance = 0;
+			let startScale = 1;
+			let tempScale = 1;
+			let pinching = false;
 
-      // --- EVENT LISTENERS ---
+			function distance(touches) {
+				const dx = touches[0].clientX - touches[1].clientX;
+				const dy = touches[0].clientY - touches[1].clientY;
+				return Math.hypot(dx, dy);
+			}
 
-      // Trigger: "Завантажити PDF" Button (Menu Item)
-      document.getElementById('menu-2-1').addEventListener('click', function(e) {
-        e.preventDefault(); // Stop default link behavior
+			viewer.addEventListener('touchstart', e => {
+				if (e.touches.length !== 2) return;
 
-        // Close the menu first
-        $('.popup-fullmenu').removeClass('active');
-        $('.overlay').fadeOut();
+				e.preventDefault();
+				pinching = true;
 
-        // Open the PDF
-        // REPLACE 'vod.pdf' WITH YOUR ACTUAL PDF FILE NAME
-        openPdfViewer('vod.pdf');
-      });
+				startDistance = distance(e.touches);
+				startScale = currentScale; // ← ВЖЕ ІСНУЮЧА змінна
+				tempScale = 1;
 
-      // Button: Done
-      document.getElementById('pdfDone').addEventListener('click', closePdfViewer);
+				canvas.style.transformOrigin = 'center center';
+				canvas.style.willChange = 'transform';
+			}, { passive: false });
 
-      // Button: Share (Web Share API)
-      document.getElementById('shareBtn').addEventListener('click', function() {
-        if (navigator.share) {
-          navigator.share({
-            title: 'Військово-обліковий документ',
-            text: 'Мій документ Резерв+',
-            url: window.location.href
-          }).catch(console.error);
-        } else {
-        }
-      });
+			viewer.addEventListener('touchmove', e => {
+				if (!pinching || e.touches.length !== 2) return;
 
-      // Add Pinch-to-Zoom Support (Basic)
-      // This allows zooming the canvas via CSS transform for performance
-      const el = document.getElementById('pdfViewer');
-      let currentScale = 1;
-      let initialDistance = 0;
+				e.preventDefault();
 
-      el.addEventListener('touchstart', function(e) {
-        if(e.touches.length === 2) {
-          initialDistance = Math.hypot(
-            e.touches[0].pageX - e.touches[1].pageX,
-            e.touches[0].pageY - e.touches[1].pageY
-          );
-        }
-      });
+				const d = distance(e.touches);
+				tempScale = Math.min(3, Math.max(0.8, d / startDistance));
 
-      el.addEventListener('touchmove', function(e) {
-        if(e.touches.length === 2) {
-          const dist = Math.hypot(
-            e.touches[0].pageX - e.touches[1].pageX,
-            e.touches[0].pageY - e.touches[1].pageY
-          );
-          // Calculate scale change
-          const delta = dist / initialDistance;
+				canvas.style.transform = `scale(${tempScale})`;
+			}, { passive: false });
 
-          // Apply scale logic (simplified)
-          // Ideally use a library like Panzoom for production pinch/pan
-        }
-      });
+			viewer.addEventListener('touchend', () => {
+				if (!pinching) return;
+				pinching = false;
 
-    </script>
+				canvas.style.transform = 'none';
+				canvas.style.willChange = 'auto';
+
+				currentScale = Math.min(3, Math.max(0.8, startScale * tempScale));
+				renderPdf(); // 🔥 ОДИН render ПІСЛЯ жесту
+			});
+		})();
+
+		function closePdf() {
+			overlay.style.display = 'none';
+			viewer.innerHTML = '';
+		}
+
+		document.getElementById('shareBtn').onclick = async () => {
+			if (navigator.share) {
+				await navigator.share({
+					title: document.title,
+					url: window.location.href
+				});
+			}
+		};
+
+		document.getElementById('searchBtn').onclick = () => {
+			console.log('Search clicked');
+		};
+
+		let lastDistance = null;
+
+		const container = document.querySelector('#pdfViewer');
+
+		container.addEventListener('touchend', () => {
+			lastDistance = null;
+		});
+	</script>
 </body></html>
