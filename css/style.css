@@ -994,9 +994,9 @@ span.ver {
 /* 1. The Black Box (Moved Higher) */
 .faceid-box {
 	position: fixed;
-	/* Move higher: Use safe-area directly without extra spacing */
-	top: 0;
-	padding-top: 11px;
+	/* Position it high up. Since we now use viewport-fit=cover,
+       top: 8px will be 8px from the physical top edge (very close to notch) */
+	top: 8px;
 	left: 50%;
 
 	width: 144px;
@@ -1080,10 +1080,12 @@ span.ver {
 /* 4. Background Blur Fix */
 body.app-locked > *:not(.loader) {
 	filter: blur(15px);
+	-webkit-filter: blur(15px);
 	transition: none !important;
 }
 
 body:not(.app-locked) > *:not(.loader) {
 	transition: filter 0.5s ease;
 	filter: blur(0);
+	-webkit-filter: blur(0);
 }
