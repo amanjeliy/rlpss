@@ -13,7 +13,7 @@
     <style>
         /* --- 1. Variables & Base --- */
         :root {
-            --ios-green: #2ed158; /* Native iOS Green */
+            --ios-green: #2ed158;
             --island-bg: #000000;
             --app-bg: #121212;
             --card-bg: #1c1c1e;
@@ -46,13 +46,13 @@
             transform: scale(1);
         }
 
-        /* LOCKED STATE: INSTANT blur (Crucial for iOS App Switcher Snapshot) */
+        /* LOCKED STATE: INSTANT blur */
         body.locked .main-app-content {
-            filter: blur(15px) brightness(0.8); /* Strong blur */
-            transform: scale(0.96); /* Slight scale down effect */
+            filter: blur(20px) brightness(0.7); /* Increased blur */
+            transform: scale(0.96);
             pointer-events: none;
 
-            /* IMMEDIATE transition to catch the screenshot before app closes */
+            /* IMMEDIATE transition to beat the iOS snapshot */
             transition: none !important;
         }
 
@@ -65,10 +65,8 @@
             display: flex;
             justify-content: center;
             z-index: 9999;
-            padding-top: 11px; /* Positioning for standard iPhone notch/island */
+            padding-top: 11px;
             pointer-events: none;
-
-            /* Smooth fade in/out for the container visibility */
             transition: opacity 0.2s ease;
         }
 
@@ -80,9 +78,8 @@
             height: 36px;
             display: flex;
             align-items: center;
-            justify-content: center; /* Perfect Centering */
+            justify-content: center;
             overflow: hidden;
-
             box-shadow: 0 4px 20px rgba(0,0,0,0.4);
 
             /* Smooth size expansion */
@@ -95,14 +92,13 @@
         body.locked .dynamic-island {
             width: 160px;
             height: 160px;
-            border-radius: 44px; /* Squircle */
+            border-radius: 44px;
             pointer-events: auto;
-
-            /* Also instant transition when locking to prevent animation glitches in snapshot */
-            transition: width 0s, height 0s, border-radius 0s;
+            /* Instant transition on lock */
+            transition: none !important;
         }
 
-        /* When unlocking, restore the smooth animation */
+        /* Unlocking State (Restore animations) */
         body.unlocking .dynamic-island {
             transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1),
             height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1),
@@ -124,7 +120,7 @@
         body.locked .island-content {
             opacity: 1;
             transform: scale(1);
-            transition: none; /* Instant show on lock */
+            transition: none !important;
         }
 
         body.unlocking .island-content {
@@ -160,7 +156,6 @@
             display: none;
         }
 
-        /* Scanning Animation */
         body.locked #face-id-svg.scanning {
             display: block;
             opacity: 1;
@@ -184,7 +179,6 @@
             stroke-linejoin: round;
             opacity: 0;
             transform: scale(0.5);
-            /* Smooth pop-in */
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
@@ -197,7 +191,9 @@
 
     </style>
 </head>
-<body class="locked"> <div class="main-app-content">
+<body class="locked">
+
+<div class="main-app-content">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <div style="background: #333; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #aaa;">AM</div>
         <div style="color: white; font-weight: bold;">Earn £50</div>
@@ -225,24 +221,19 @@
     <div class="dynamic-island">
         <div class="island-content">
             <div class="icon-container">
-
                 <svg id="face-id-svg" class="scanning" viewBox="0 0 50 50">
                     <path d="M14,4 A14,14 0 0,0 4,14" />
                     <path d="M36,4 A14,14 0 0,1 46,14" />
                     <path d="M46,36 A14,14 0 0,1 36,46" />
                     <path d="M4,36 A14,14 0 0,0 14,46" />
-
                     <path d="M17,20 L17,20" stroke-width="4" />
                     <path d="M33,20 L33,20" stroke-width="4" />
-
                     <path d="M17,30 Q25,38 33,30" />
                 </svg>
-
                 <svg id="success-svg" viewBox="0 0 50 50">
                     <circle cx="25" cy="25" r="23" stroke-width="2.5" />
                     <path d="M14 26 L22 34 L36 16" stroke-width="3" />
                 </svg>
-
             </div>
         </div>
     </div>
@@ -253,70 +244,73 @@
   const successSvg = document.getElementById('success-svg');
   let isLocked = false;
 
-  // 1. FAST LOCK (For App Switcher)
+  // 1. LOCK FUNCTION (Optimized for Speed)
   const lockApp = () => {
     if(isLocked) return;
     isLocked = true;
 
-    // Remove 'unlocking' class if it exists to kill transitions
     document.body.classList.remove('unlocking');
     document.body.classList.add('locked');
 
-    // Reset Icons Synchronously
+    // FORCE REPAINT (Critical Fix)
+    // accessing offsetWidth forces the browser to apply the 'locked' class
+    // and calculate styles immediately, before the OS takes the screenshot.
+    void document.body.offsetWidth;
+
+    // Reset UI
     faceSvg.classList.add('scanning');
     faceSvg.style.display = 'block';
     successSvg.classList.remove('visible');
   };
 
-  // 2. SMOOTH UNLOCK SEQUENCE
+  // 2. UNLOCK FUNCTION
   const unlockSequence = () => {
-    // Add 'unlocking' class to restore smooth CSS transitions
     document.body.classList.add('unlocking');
 
-    // Wait 200ms for UI to settle, then scan
     setTimeout(() => {
-      // A. Scan Phase (1.2s)
       setTimeout(() => {
-        // B. Success Phase
         faceSvg.style.display = 'none';
         successSvg.classList.add('visible');
-
-        // C. Unlock Phase (0.7s after success)
         setTimeout(() => {
           document.body.classList.remove('locked');
           isLocked = false;
         }, 700);
-
       }, 1200);
     }, 200);
   };
 
   // --- LISTENERS ---
 
-  // Fix for iOS Snapshot: Detect "pagehide" (app closing/switching)
-  // This fires *before* the screenshot is taken
-  window.addEventListener("pagehide", () => {
-    lockApp();
-  });
+  // FIX: 'blur' fires before 'pagehide' on many iOS versions when entering multitasking
+  window.addEventListener("blur", lockApp);
 
-  // Handle standard Visibility API
+  // Backup: Standard page closing/hiding event
+  window.addEventListener("pagehide", lockApp);
+
+  // Handle returning to the app
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       lockApp();
     } else {
-      // User returned
+      // If returning and locked, unlock
       if (isLocked) {
         unlockSequence();
       }
     }
   });
 
-  // Initial Load
-  window.addEventListener("load", () => {
-    lockApp(); // Ensure locked state CSS is applied
-    unlockSequence(); // Start the entry animation
+  // Also unlock on focus if needed (e.g. coming from Notification Center)
+  window.addEventListener("focus", () => {
+    if (!document.hidden && isLocked) {
+      unlockSequence();
+    }
   });
 
+  // Initial Load
+  window.addEventListener("load", () => {
+    lockApp();
+    unlockSequence();
+  });
 </script>
 </body>
 </html>
