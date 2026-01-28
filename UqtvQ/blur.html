@@ -11,15 +11,15 @@
     <title>Face ID Unlock</title>
 
     <style>
-        /* --- 1. Setup & Variables --- */
+        /* --- 1. Variables --- */
         :root {
-            --ios-green: #2ed158; /* The specific bright green from your video */
+            --ios-green: #2ed158; /* Native Green */
             --island-bg: #000000;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #121212; /* Dark mode background */
+            background-color: #121212;
             margin: 0;
             padding: 0;
             height: 100vh;
@@ -28,9 +28,9 @@
             color: white;
         }
 
-        /* --- 2. Main Content (Blurred when locked) --- */
+        /* --- 2. Main Content --- */
         .main-app-content {
-            padding-top: calc(60px + env(safe-area-inset-top)); /* Space for dynamic island */
+            padding-top: calc(60px + env(safe-area-inset-top));
             padding-left: 20px;
             padding-right: 20px;
             height: 100%;
@@ -40,14 +40,14 @@
             transform-origin: center center;
         }
 
-        /* Locked State: Blur and slight scale down */
+        /* Locked State */
         body.locked .main-app-content {
             filter: blur(12px) brightness(0.8);
             transform: scale(0.96);
             pointer-events: none;
         }
 
-        /* --- 3. The Dynamic Island Overlay --- */
+        /* --- 3. Dynamic Island Container --- */
         #island-overlay {
             position: fixed;
             top: 0;
@@ -56,43 +56,42 @@
             display: flex;
             justify-content: center;
             z-index: 9999;
-            padding-top: 11px; /* Approximate position below bezel */
+            padding-top: 11px; /* Matches native island position */
             pointer-events: none;
         }
 
-        /* The Black Pill Container */
         .dynamic-island {
             background-color: var(--island-bg);
-            border-radius: 30px; /* Fully rounded pill */
-            width: 0px; /* Starts invisible */
+            border-radius: 30px;
+            width: 0px;
             height: 36px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: center; /* PERFECT CENTERING */
             overflow: hidden;
 
-            /* Shadows to match depth */
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
 
-            /* Transitions for the smooth expansion */
             transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1),
-            height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+            height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1),
+            border-radius 0.4s ease;
         }
 
-        /* Active State: Expanded */
+        /* Active State */
         body.locked .dynamic-island {
-            width: 160px; /* Width of the Face ID prompt */
-            height: 160px; /* Square shape for the prompt */
-            border-radius: 40px; /* Slightly squarer corners when expanded */
+            width: 160px;
+            height: 160px;
+            border-radius: 44px; /* Native Squircle shape */
             pointer-events: auto;
         }
 
-        /* --- 4. The Content Inside the Island --- */
+        /* --- 4. Content Wrapper --- */
         .island-content {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
+            width: 100%;
+            height: 100%;
             opacity: 0;
             transform: scale(0.8);
             transition: opacity 0.2s ease 0.1s, transform 0.3s ease 0.1s;
@@ -103,24 +102,26 @@
             transform: scale(1);
         }
 
-        /* --- 5. Icons (Face ID & Checkmark) --- */
+        /* --- 5. Icon Styles --- */
         .icon-container {
-            width: 60px;
-            height: 60px;
+            width: 64px;
+            height: 64px;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 15px;
+            /* No margins here ensures perfect centering */
         }
 
         svg {
             position: absolute;
             top: 0;
             left: 0;
+            width: 100%;
+            height: 100%;
         }
 
-        /* FACE ID ICON STYLES */
+        /* FACE ID ICON */
         #face-id-svg {
             stroke: var(--ios-green);
             fill: none;
@@ -130,7 +131,7 @@
             opacity: 0;
         }
 
-        /* The spinning animation for the face */
+        /* Scanning Animation */
         body.locked #face-id-svg.scanning {
             opacity: 1;
             animation: faceScan 2s infinite linear;
@@ -144,7 +145,7 @@
             100% { transform: perspective(400px) rotateY(0deg); }
         }
 
-        /* CHECKMARK STYLES */
+        /* CHECKMARK ICON */
         #success-svg {
             stroke: var(--ios-green);
             fill: none;
@@ -161,37 +162,26 @@
             transform: scale(1);
         }
 
-        /* Text Label */
-        .island-text {
-            color: white;
-            font-family: -apple-system, sans-serif;
-            font-size: 16px;
-            font-weight: 500;
-            letter-spacing: 0.3px;
-        }
-
-        /* Utility */
         .hidden { display: none !important; }
 
     </style>
 </head>
-<body class="locked"> <div class="main-app-content">
+<body class="locked">
+
+<div class="main-app-content">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <div style="background: #333; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #aaa;">AM</div>
         <div style="color: white; font-weight: bold;">Earn £50</div>
     </div>
-
     <div style="margin-bottom: 10px; color: #888; font-size: 14px;">Total balance</div>
     <div style="font-size: 32px; font-weight: 700; margin-bottom: 20px; color: white;">
         779,558.01 <span style="font-size: 16px; color: #888;">UAH</span>
     </div>
-
     <div style="display: flex; gap: 10px; margin-bottom: 30px;">
         <button style="flex: 1; background: var(--ios-green); color: black; border: none; padding: 14px; border-radius: 20px; font-weight: 600; font-size: 16px;">Send</button>
         <button style="flex: 1; background: #333; color: var(--ios-green); border: none; padding: 14px; border-radius: 20px; font-weight: 600; font-size: 16px;">Add money</button>
         <button style="flex: 1; background: #333; color: var(--ios-green); border: none; padding: 14px; border-radius: 20px; font-weight: 600; font-size: 16px;">Request</button>
     </div>
-
     <div style="background: #2c2c2e; border-radius: 16px; padding: 15px; display: flex; align-items: center; margin-bottom: 10px;">
         <div style="background: #000; width: 40px; height: 40px; border-radius: 50%; margin-right: 15px;"></div>
         <div>
@@ -199,7 +189,6 @@
             <div style="color: #888; font-size: 13px;">$ 16,602.91</div>
         </div>
     </div>
-
     <p style="text-align: center; color: #555; margin-top: 50px; font-size: 14px;">Switch apps to test Face ID</p>
 </div>
 
@@ -207,40 +196,30 @@
     <div class="dynamic-island">
         <div class="island-content">
             <div class="icon-container">
-
-                <svg id="face-id-svg" class="scanning" width="50" height="50" viewBox="0 0 50 50">
+                <svg id="face-id-svg" class="scanning" viewBox="0 0 50 50">
                     <path d="M14,4 A14,14 0 0,0 4,14" />
                     <path d="M36,4 A14,14 0 0,1 46,14" />
                     <path d="M46,36 A14,14 0 0,1 36,46" />
                     <path d="M4,36 A14,14 0 0,0 14,46" />
-
                     <path d="M17,20 L17,20" stroke-width="4" />
                     <path d="M33,20 L33,20" stroke-width="4" />
-
                     <path d="M17,30 Q25,38 33,30" />
                 </svg>
 
-                <svg id="success-svg" width="60" height="60" viewBox="0 0 50 50">
+                <svg id="success-svg" viewBox="0 0 50 50">
                     <circle cx="25" cy="25" r="23" stroke-width="2.5" />
                     <path d="M14 26 L22 34 L36 16" stroke-width="3" />
                 </svg>
-
             </div>
-            <div class="island-text" id="status-text">Face ID</div>
         </div>
     </div>
 </div>
 
 <script>
-  // --- LOGIC ---
-
   const faceSvg = document.getElementById('face-id-svg');
   const successSvg = document.getElementById('success-svg');
-  const statusText = document.getElementById('status-text');
-
   let isLocked = true;
 
-  // Function to lock the app
   const lockApp = () => {
     if(isLocked) return;
     isLocked = true;
@@ -250,57 +229,38 @@
     faceSvg.classList.add('scanning');
     faceSvg.style.display = 'block';
     successSvg.classList.remove('visible');
-    statusText.innerText = "Face ID";
   };
 
-  // Function to run the unlock sequence
   const unlockSequence = () => {
     if(!isLocked) return;
 
-    console.log("Scanning...");
-
-    // 1. Let it scan for 1.2 seconds (Simulating read)
+    // 1. Scan for 1.2s
     setTimeout(() => {
-
       // 2. Show Success
-      faceSvg.style.display = 'none'; // Hide face
-      successSvg.classList.add('visible'); // Pop checkmark
-      // statusText.innerText = "Authorized"; // Optional text change
+      faceSvg.style.display = 'none';
+      successSvg.classList.add('visible');
 
-      // 3. Unlock after short delay
+      // 3. Unlock after 0.7s
       setTimeout(() => {
         document.body.classList.remove('locked');
         isLocked = false;
-      }, 700); // How long the checkmark stays
-
-    }, 1200); // How long the face scans
+      }, 700);
+    }, 1200);
   };
 
-  // --- LISTENERS ---
-
-  // 1. App Switching (Tab hidden/visible)
+  // Listeners
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
-      lockApp();
-    } else {
-      // When coming back, wait a split second for the expansion animation, then scan
-      setTimeout(unlockSequence, 300);
-    }
+    if (document.hidden) lockApp();
+    else setTimeout(unlockSequence, 300);
   });
 
-  // 2. iOS Home Screen backgrounding
   window.addEventListener("pagehide", lockApp);
 
-  // 3. Initial Load -> Start Locked, then scan
   window.addEventListener("load", () => {
-    // Ensure we are locked initially
     document.body.classList.add('locked');
     isLocked = true;
-
-    // Start scan immediately on load
     setTimeout(unlockSequence, 500);
   });
-
 </script>
 </body>
 </html>
