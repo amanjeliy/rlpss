@@ -808,85 +808,119 @@ span.ver {
 	padding-bottom: 330px !important;
   }
 }
+/* --- iOS PDF VIEWER STYLES --- */
+
 #pdfOverlay {
 	position: fixed;
-	inset: 0;
-	background: #fff;
-	z-index: 999999;
-	display: none;
-	padding-top: env(safe-area-inset-top);
-	padding-bottom: env(safe-area-inset-bottom);
-}
-
-.pdf-header {
-	position: sticky;
 	top: 0;
-	height: 48px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: #fff;
-	z-index: 10;
-}
-
-.pdf-header button {
-	background: none;
-	border: none;
-	color: #4da3ff;
-	font-size: 17px;
-}
-
-.pdf-title {
-	color: #000;
-	font-size: 16px;
-	background: #fff;
-	font-weight: 500;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	max-width: 70%;
-}
-
-#pdfViewer {
-	overflow: auto;
-	touch-action: none;
-	overscroll-behavior: contain;
-	background: #fff;
-}
-
-#pdf-canvas {
-	display: block;
-}
-
-#pdfViewer canvas {
-	width: 100% !important;
-	height: auto !important;
-	display: block;
-}
-
-.pdf-bottom-bar {
-	position: fixed;
 	left: 0;
-	right: 0;
-	bottom: 0;
-	height: 64px;
-	padding: 0 28px env(safe-area-inset-bottom);
-	background: #fff;
+	width: 100%;
+	height: 100%;
+	background-color: #f2f2f7; /* iOS System Gray background */
+	z-index: 99990; /* High z-index but below FaceID (99999) */
+	display: none; /* Hidden by default */
+	flex-direction: column;
+}
+
+/* TOP HEADER */
+.pdf-header {
+	background: rgba(249, 249, 249, 0.94); /* Translucent white */
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	border-bottom: 0.5px solid #c6c6c8;
+
+	padding-top: env(safe-area-inset-top); /* Handle Notch */
+	height: 44px; /* Standard iOS nav height */
+
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	border-top-left-radius: 18px;
-	border-top-right-radius: 18px;
-	box-shadow: 0 -6px 18px rgba(0,0,0,.08);
-	z-index: 20;
+	padding-left: 16px;
+	padding-right: 16px;
+	flex-shrink: 0;
+	z-index: 10;
+}
+
+.pdf-title {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	overflow: hidden;
+	flex: 1;
+}
+
+.pdf-title .main-title {
+	font-size: 17px;
+	font-weight: 600;
+	color: #000;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.pdf-title .sub-title {
+	font-size: 10px;
+	color: #888;
+	margin-top: -2px;
+}
+
+#pdfDone {
+	background: none;
+	border: none;
+	color: #007aff; /* iOS Blue */
+	font-size: 17px;
+	font-weight: 600;
+	cursor: pointer;
+	padding: 0;
+}
+
+/* PDF CONTAINER */
+#pdfViewer {
+	flex: 1;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+	display: flex;
+	justify-content: center;
+	padding: 20px 10px 80px 10px; /* Padding for scrolling space */
+}
+
+#pdf-canvas {
+	box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+	max-width: 100%;
+	height: auto;
+	display: block;
+}
+
+/* BOTTOM BAR */
+.pdf-bottom-bar {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	background: rgba(249, 249, 249, 0.94);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	border-top: 0.5px solid #c6c6c8;
+
+	padding-bottom: env(safe-area-inset-bottom); /* Handle Home Indicator */
+	height: 44px;
+
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding-left: 30px;
+	padding-right: 30px;
+	box-sizing: border-box;
+	z-index: 10;
 }
 
 .pdf-action {
 	background: none;
 	border: none;
-	padding: 8px;
-	color: #0a84ff; /* iOS blue */
-	cursor: pointer;
+	padding: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .pdf-action svg {
