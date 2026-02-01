@@ -343,14 +343,12 @@ jQuery(function($){
 });
 
 function restartMarquee() {
-    const tracks = document.querySelectorAll('.track');
-    if (!tracks.length) return;
+    const track = document.querySelector('.track');
+    if (!track) return;
 
-    tracks.forEach(track => {
-        track.classList.remove('animate');
-        void track.offsetWidth; // force reflow (Safari-safe)
-        track.classList.add('animate');
-    });
+    track.classList.remove('animate');
+    void track.offsetWidth; // force reflow (Safari-safe)
+    track.classList.add('animate');
 }
 
 $(document).ready(function () {
