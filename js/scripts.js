@@ -113,8 +113,6 @@ $(document).ready(function () {
           time
         );
     });
-
-    restartMarquee();
 });
 
 $(document).ready(function() {
@@ -355,9 +353,9 @@ jQuery(function($){
 
 function restartMarquee() {
     const track = document.querySelector('.track');
-    track.classList.remove('animate');
-    void track.offsetWidth;
-    track.classList.add('animate');
+    track.style.animation = 'none';
+    track.offsetHeight; // force reflow
+    track.style.animation = '';
 }
 
 $(document).ready(function () {
