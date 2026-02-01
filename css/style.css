@@ -212,12 +212,17 @@ a {
 	overflow-x: hidden;
 	font-weight: 300;
 }
+
 .track {
 	position: absolute;
 	white-space: nowrap;
 	will-change: transform;
+}
+
+.track.animate {
 	animation: marquee 50s linear infinite;
 }
+
 @keyframes marquee {
 	from { transform: translateX(0); }
 	to { transform: translateX(-50%); }
