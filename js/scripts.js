@@ -84,26 +84,37 @@ $(document).ready(function () {
 
     const getStableRandomTime = () => {
         const now = new Date(Date.now() - 4 * 60 * 60 * 1000);
+
+        // інтервал стабільності (у хвилинах)
         const SLOT_MINUTES = 15;
-        const slot = Math.floor((now.getHours() * 60 + now.getMinutes()) / SLOT_MINUTES);
+
+        // номер часового "вікна"
+        const slot =
+          Math.floor(
+            (now.getHours() * 60 + now.getMinutes()) / SLOT_MINUTES
+          );
+
+        // простий детермінований псевдорандом
         const randomMinute = (slot * 37) % 60;
 
         now.setMinutes(randomMinute, 0, 0);
 
-        return `${pad(now.getHours())}:${pad(now.getMinutes())} | ${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()}`;
+        return (
+          `${pad(now.getHours())}:${pad(now.getMinutes())} | ` +
+          `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()}`
+        );
     };
 
     const time = getStableRandomTime();
-    const regex = /\d{2}:\d{2}\s\|\s\d{2}\.\d{2}\.\d{4}/g;
 
     elements.forEach(el => {
-        if (regex.test(el.textContent)) {
-            el.textContent = el.textContent.replace(regex, time);
-        }
+        el.textContent = el.textContent.replace(
+          /\d{2}:\d{2}\s\|\s\d{2}\.\d{2}\.\d{4}/g,
+          time
+        );
     });
 
-    // 🔥 restart marquee AFTER text is final
-    setTimeout(restartMarquee, 0);
+    restartMarquee();
 });
 
 $(document).ready(function() {
@@ -344,10 +355,8 @@ jQuery(function($){
 
 function restartMarquee() {
     const track = document.querySelector('.track');
-    if (!track) return;
-
     track.classList.remove('animate');
-    void track.offsetWidth; // force reflow (Safari-safe)
+    void track.offsetWidth;
     track.classList.add('animate');
 }
 
