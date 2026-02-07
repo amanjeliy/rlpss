@@ -49,21 +49,22 @@
 
     /* PDF Container Logic */
     #viewport {
-      width: 100%; height: 100%;
-      overflow: auto;
+      width: 100%;
+      height: 100%;
+      overflow: auto; /* Allow scrolling */
       padding: calc(75px + env(safe-area-inset-top)) 10px 100px 10px;
       box-sizing: border-box;
-      display: flex; justify-content: center; align-items: flex-start;
+      display: block; /* Changed from flex to allow proper overflow scrolling */
       -webkit-overflow-scrolling: touch;
-      touch-action: none; /* Crucial for custom gesture handling */
+      touch-action: pan-x pan-y; /* Allow finger panning */
     }
 
     #canvas-container {
       background: white;
+      margin: 0 auto; /* Center the document */
       box-shadow: 0 5px 25px rgba(0,0,0,0.12);
       border-radius: 6px;
-      transform-origin: top center;
-      transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+      line-height: 0;
     }
 
     canvas {
@@ -144,11 +145,17 @@
 
   function renderPage() {
     pdfDoc.getPage(1).then(page => {
+      // Fix for upside-down/rotated PDFs
+      const rotation = page.rotate;
       const dpr = window.devicePixelRatio || 1;
-      const viewport = page.getViewport({ scale: scale });
+
+      // Use the rotation property in the viewport
+      const viewport = page.getViewport({ scale: scale, rotation: rotation });
 
       canvas.width = viewport.width * dpr;
       canvas.height = viewport.height * dpr;
+
+      // Crucial: Update the CSS size so the #viewport knows it needs to scroll
       canvas.style.width = viewport.width + "px";
       canvas.style.height = viewport.height + "px";
 
@@ -160,6 +167,19 @@
       page.render(renderContext);
     });
   }
+
+  // Update the Gesture End logic to handle scroll area
+  view.addEventListener('gestureend', (e) => {
+    e.preventDefault();
+    // Calculate new scale
+    let newScale = scale * e.scale;
+    scale = Math.min(Math.max(newScale, initialScale * 0.8), initialScale * 5);
+
+    // Remove the visual CSS scaling and do a real render
+    // This makes the internal "scrollable area" expand to match the zoom
+    container.style.transform = 'scale(1)';
+    renderPage();
+  });
 
   // --- GESTURE HANDLING ---
   const view = document.getElementById('viewport');
@@ -173,14 +193,6 @@
   view.addEventListener('gesturechange', (e) => {
     e.preventDefault();
     container.style.transform = `scale(${e.scale})`;
-  });
-
-  view.addEventListener('gestureend', (e) => {
-    e.preventDefault();
-    scale = Math.min(Math.max(scale * e.scale, initialScale * 0.8), initialScale * 4);
-    container.style.transform = 'scale(1)';
-    container.style.transition = 'transform 0.2s cubic-bezier(0.25, 1, 0.5, 1)';
-    renderPage();
   });
 
   // Double Tap Reset
