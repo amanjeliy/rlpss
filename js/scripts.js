@@ -358,6 +358,13 @@ function restartMarquee() {
     track.style.animation = '';
 }
 
+function subtractRandomMinutes(date, minMinutes = 10, maxMinutes = 240) {
+    const minutes =
+      Math.floor(Math.random() * (maxMinutes - minMinutes + 1)) + minMinutes;
+
+    return new Date(date.getTime() - minutes * 60 * 1000);
+}
+
 $(document).ready(function () {
 
     const items = $(".list-notification li");
@@ -366,17 +373,14 @@ $(document).ready(function () {
     items.each(function (index) {
 
         if (index === 0) {
-            currentDate = new Date(); // текущая дата
             currentDate.setHours(currentDate.getHours() - 4);
-        } 
+        }
         else {
-            let minusDays = Math.floor(Math.random() * 3) + 1;
-            currentDate.setDate(currentDate.getDate() - minusDays);
-
-            let hours = Math.floor(Math.random() * 24);
-            let minutes = Math.floor(Math.random() * 60);
-            currentDate.setHours(hours);
-            currentDate.setMinutes(minutes);
+            currentDate = subtractRandomMinutes(
+              currentDate,
+              index % 2 === 0 ? 10 : 720,
+              index % 2 === 0 ? 5760 : 240
+            );
         }
 
         let dd = String(currentDate.getDate()).padStart(2, "0");
