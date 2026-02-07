@@ -133,6 +133,20 @@
     renderPage(pageNum); // High-quality re-render
   });
 
+  let lastTap = 0;
+
+  wrapper.addEventListener('touchend', function (e) {
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTap;
+
+    if (tapLength < 300 && tapLength > 0) {
+      // Double Tap Detected
+      e.preventDefault(); // Stop default Safari zoom
+      resetZoom();
+    }
+    lastTap = currentTime;
+  });
+
   // Register Service Worker for PWA Offline Support
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js');
