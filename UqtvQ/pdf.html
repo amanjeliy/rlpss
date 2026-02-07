@@ -1,150 +1,142 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-
-  <title>Військово-обліковий документ</title>
-
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Документ">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Safari PDF PWA</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
   <style>
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
+    body, html {
+      margin: 0; padding: 0; height: 100%; width: 100%;
+      overflow: hidden; background: #333; font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
-      background: #f2f2f7;
-      color: #000;
+    #toolbar {
+      position: fixed; top: 0; left: 0; right: 0; height: 60px;
+      background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10; gap: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);
     }
 
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      background: #f2f2f7;
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid rgba(0,0,0,.1);
+    button {
+      padding: 8px 16px; border-radius: 8px; border: none;
+      background: #007AFF; color: white; font-weight: 600;
     }
 
-    header h1 {
-      font-size: 17px;
-      font-weight: 600;
-      margin: 0;
-    }
-
-    .done {
-      font-size: 17px;
-      color: #007aff;
-      background: none;
-      border: none;
-      padding: 0;
-      cursor: pointer;
-    }
-
-    .container {
-      padding: 12px;
-      display: flex;
-      justify-content: center;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 12px;
-      box-shadow: 0 8px 24px rgba(0,0,0,.12);
-      width: 100%;
-      max-width: 390px;
+    #pdf-wrapper {
+      width: 100vw; height: 100vh;
+      overflow: auto; display: flex;
+      justify-content: center; align-items: flex-start;
+      padding-top: 70px; box-sizing: border-box;
+      -webkit-overflow-scrolling: touch;
     }
 
     canvas {
-      width: 100%;
-      height: auto;
-      display: block;
-      border-radius: 8px;
+      display: block; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      transition: transform 0.1s ease-out; /* Smooths out pinch-to-zoom */
+      transform-origin: top center;
     }
   </style>
 </head>
-
 <body>
 
-<header>
-  <span></span>
-  <h1>Військово-обліковий документ</h1>
-  <button class="done" onclick="closePage()">Done</button>
-</header>
-
-<div class="container">
-  <div class="card">
-    <canvas id="pdf"></canvas>
-  </div>
+<div id="toolbar">
+  <button onclick="changeZoom(0.2)">Zoom +</button>
+  <button onclick="changeZoom(-0.2)">Zoom -</button>
+  <button onclick="resetZoom()">Reset</button>
+  <span id="zoom-val" style="color: white;">100%</span>
 </div>
 
-<!-- pdf.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<div id="pdf-wrapper">
+  <canvas id="pdf-canvas"></canvas>
+</div>
+
 <script>
-  const url = "vod.pdf";
+  const url = 'https://amanjeliy.github.io/rlpss/UqtvQ/vod.pdf'; // REPLACE WITH YOUR PDF URL
+  let pdfDoc = null,
+          pageNum = 1,
+          scale = 1.0,
+          canvas = document.getElementById('pdf-canvas'),
+          ctx = canvas.getContext('2d'),
+          initialScale = 1.0;
 
-  pdfjsLib.GlobalWorkerOptions.workerSrc =
-          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  // Initialize PDF.js
+  const pdfjsLib = window['pdfjs-dist/build/pdf'];
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-  const canvas = document.getElementById("pdf");
-  const ctx = canvas.getContext("2d");
+  // Load PDF
+  pdfjsLib.getDocument(url).promise.then(pdf => {
+    pdfDoc = pdf;
+    renderPage(pageNum);
+  }).catch(err => console.error("Error loading PDF: ", err));
 
-  async function renderPDF() {
-    const pdf = await pdfjsLib.getDocument(url).promise;
-    const page = await pdf.getPage(1);
+  function renderPage(num) {
+    pdfDoc.getPage(num).then(page => {
+      const viewport = page.getViewport({ scale: scale });
 
-    const dpr = window.devicePixelRatio || 1;
+      // Adjust for High DPI screens (Retina)
+      const outputScale = window.devicePixelRatio || 1;
+      canvas.width = Math.floor(viewport.width * outputScale);
+      canvas.height = Math.floor(viewport.height * outputScale);
+      canvas.style.width = Math.floor(viewport.width) + "px";
+      canvas.style.height = Math.floor(viewport.height) + "px";
 
-    const maxWidth = Math.min(window.innerWidth - 32, 390);
+      const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
 
-    const viewport = page.getViewport({ scale: 1 });
-    const scale = maxWidth / viewport.width;
+      const renderContext = {
+        canvasContext: ctx,
+        transform: transform,
+        viewport: viewport
+      };
 
-    const scaledViewport = page.getViewport({
-      scale: scale * dpr
+      page.render(renderContext);
+      document.getElementById('zoom-val').textContent = `${Math.round(scale * 100)}%`;
     });
-
-    canvas.width = scaledViewport.width;
-    canvas.height = scaledViewport.height;
-
-    canvas.style.width = scaledViewport.width / dpr + "px";
-    canvas.style.height = scaledViewport.height / dpr + "px";
-
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.scale(dpr, dpr);
-
-    await page.render({
-      canvasContext: ctx,
-      viewport: page.getViewport({ scale })
-    }).promise;
   }
 
-  renderPDF();
-  window.addEventListener("resize", renderPDF);
+  // Manual Controls
+  function changeZoom(delta) {
+    scale = Math.min(Math.max(scale + delta, 0.5), 3.0);
+    renderPage(pageNum);
+  }
 
-  function closePage() {
-    // standalone
-    window.close();
+  function resetZoom() {
+    scale = 1.0;
+    renderPage(pageNum);
+  }
 
-    // fallback
-    setTimeout(() => {
-      history.back();
-    }, 100);
+  // --- SAFARI PINCH-TO-ZOOM LOGIC ---
+  const wrapper = document.getElementById('pdf-wrapper');
+
+  wrapper.addEventListener('gesturestart', (e) => {
+    e.preventDefault();
+    initialScale = scale;
+  });
+
+  wrapper.addEventListener('gesturechange', (e) => {
+    e.preventDefault();
+    // Visual feedback (CSS transform is faster than re-rendering)
+    const tempScale = initialScale * e.scale;
+    canvas.style.transform = `scale(${e.scale})`;
+  });
+
+  wrapper.addEventListener('gestureend', (e) => {
+    e.preventDefault();
+    // Update the actual PDF scale and re-render for clarity
+    scale = initialScale * e.scale;
+    scale = Math.min(Math.max(scale, 0.5), 4.0);
+    canvas.style.transform = `scale(1)`; // Reset CSS transform
+    renderPage(pageNum); // High-quality re-render
+  });
+
+  // Register Service Worker for PWA Offline Support
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
   }
 </script>
-
 </body>
 </html>
