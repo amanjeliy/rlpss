@@ -1,155 +1,203 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Safari PDF PWA</title>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Військово-обліковий документ</title>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
   <style>
+    :root {
+      --ios-blue: #007AFF;
+      --bg-gray: #F2F2F7;
+      --header-bg: rgba(255, 255, 255, 0.85);
+    }
+
     body, html {
-      margin: 0; padding: 0; height: 100%; width: 100%;
-      overflow: hidden; background: #333; font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0; padding: 0; width: 100%; height: 100%;
+      background-color: var(--bg-gray);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overflow: hidden; /* Prevents whole-page bouncing */
+      -webkit-user-select: none;
+      user-select: none;
     }
 
-    #toolbar {
-      position: fixed; top: 0; left: 0; right: 0; height: 60px;
-      background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 10; gap: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);
+    /* iOS Header Style */
+    .header {
+      position: fixed; top: 0; width: 100%;
+      height: calc(60px + env(safe-area-inset-top));
+      padding-top: env(safe-area-inset-top);
+      display: flex; align-items: center; justify-content: space-between;
+      padding-left: 16px; padding-right: 16px; box-sizing: border-box;
+      background: var(--header-bg);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      z-index: 100; border-bottom: 0.5px solid #d1d1d6;
     }
 
-    button {
-      padding: 8px 16px; border-radius: 8px; border: none;
-      background: #007AFF; color: white; font-weight: 600;
+    .header-title {
+      font-size: 17px; font-weight: 600; color: #000;
+      display: flex; align-items: center; gap: 4px;
     }
 
-    #pdf-wrapper {
-      width: 100vw; height: 100vh;
-      overflow: auto; display: flex;
-      justify-content: center; align-items: flex-start;
-      padding-top: 70px; box-sizing: border-box;
+    .done-btn {
+      color: var(--ios-blue); font-size: 17px; font-weight: 600;
+      background: none; border: none; padding: 8px; cursor: pointer;
+    }
+
+    /* PDF Container Logic */
+    #viewport {
+      width: 100%; height: 100%;
+      overflow: auto;
+      padding: calc(75px + env(safe-area-inset-top)) 10px 100px 10px;
+      box-sizing: border-box;
+      display: flex; justify-content: center; align-items: flex-start;
       -webkit-overflow-scrolling: touch;
+      touch-action: none; /* Crucial for custom gesture handling */
+    }
+
+    #canvas-container {
+      background: white;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.12);
+      border-radius: 6px;
+      transform-origin: top center;
+      transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
     canvas {
-      display: block; box-shadow: 0 0 20px rgba(0,0,0,0.5);
-      transition: transform 0.1s ease-out; /* Smooths out pinch-to-zoom */
-      transform-origin: top center;
+      display: block; border-radius: 6px;
     }
+
+    /* Bottom Toolbar */
+    .toolbar {
+      position: fixed; bottom: 0; width: 100%;
+      height: calc(70px + env(safe-area-inset-bottom));
+      padding-bottom: env(safe-area-inset-bottom);
+      background: var(--header-bg);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      display: flex; justify-content: space-between; align-items: center;
+      padding-left: 45px; padding-right: 45px; box-sizing: border-box;
+      border-top: 0.5px solid #d1d1d6;
+      z-index: 100;
+    }
+
+    .icon-btn {
+      background: none; border: none; padding: 10px;
+      color: var(--ios-blue); cursor: pointer;
+    }
+
+    .icon { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.5; }
   </style>
 </head>
 <body>
 
-<div id="toolbar">
-  <button onclick="changeZoom(0.2)">Zoom +</button>
-  <button onclick="changeZoom(-0.2)">Zoom -</button>
-  <button onclick="resetZoom()">Reset</button>
-  <span id="zoom-val" style="color: white;">100%</span>
+<div class="header">
+  <div style="width: 60px;"></div>
+  <div class="header-title">
+    Військово-обліковий документ
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="#8E8E93"><path d="M1 3l4 4 4-4"/></svg>
+  </div>
+  <button class="done-btn" onclick="resetZoom()">Done</button>
 </div>
 
-<div id="pdf-wrapper">
-  <canvas id="pdf-canvas"></canvas>
+<div id="viewport">
+  <div id="canvas-container">
+    <canvas id="pdf-canvas"></canvas>
+  </div>
+</div>
+
+<div class="toolbar">
+  <button class="icon-btn">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8m-16-4l8-8 8 8m-8-8v13"/></svg>
+  </button>
+  <button class="icon-btn">
+    <svg class="icon" viewBox="0 0 24 24" style="stroke-width: 2;"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+  </button>
 </div>
 
 <script>
-  const url = 'https://amanjeliy.github.io/rlpss/UqtvQ/vod.pdf'; // REPLACE WITH YOUR PDF URL
-  let pdfDoc = null,
-          pageNum = 1,
-          scale = 1.0,
-          canvas = document.getElementById('pdf-canvas'),
-          ctx = canvas.getContext('2d'),
-          initialScale = 1.0;
+  const url = 'https://amanjeliy.github.io/rlpss/UqtvQ/vod.pdf'; // Path to your file
+  let pdfDoc = null, scale = 1.0, initialScale = 1.0, lastTap = 0;
+  const canvas = document.getElementById('pdf-canvas');
+  const container = document.getElementById('canvas-container');
+  const ctx = canvas.getContext('2d');
 
-  // Initialize PDF.js
   const pdfjsLib = window['pdfjs-dist/build/pdf'];
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-  // Load PDF
+  // Initialize and Auto-Fit
   pdfjsLib.getDocument(url).promise.then(pdf => {
     pdfDoc = pdf;
-    renderPage(pageNum);
-  }).catch(err => console.error("Error loading PDF: ", err));
+    pdf.getPage(1).then(page => {
+      const unscaledViewport = page.getViewport({ scale: 1 });
+      const screenWidth = window.innerWidth - 32; // Responsive padding
 
-  function renderPage(num) {
-    pdfDoc.getPage(num).then(page => {
+      // Calculate scale to fit iPhone screen width perfectly
+      scale = screenWidth / unscaledViewport.width;
+      initialScale = scale;
+
+      renderPage();
+    });
+  });
+
+  function renderPage() {
+    pdfDoc.getPage(1).then(page => {
+      const dpr = window.devicePixelRatio || 1;
       const viewport = page.getViewport({ scale: scale });
 
-      // Adjust for High DPI screens (Retina)
-      const outputScale = window.devicePixelRatio || 1;
-      canvas.width = Math.floor(viewport.width * outputScale);
-      canvas.height = Math.floor(viewport.height * outputScale);
-      canvas.style.width = Math.floor(viewport.width) + "px";
-      canvas.style.height = Math.floor(viewport.height) + "px";
-
-      const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
+      canvas.width = viewport.width * dpr;
+      canvas.height = viewport.height * dpr;
+      canvas.style.width = viewport.width + "px";
+      canvas.style.height = viewport.height + "px";
 
       const renderContext = {
         canvasContext: ctx,
-        transform: transform,
-        viewport: viewport
+        viewport: viewport,
+        transform: [dpr, 0, 0, dpr, 0, 0]
       };
-
       page.render(renderContext);
-      document.getElementById('zoom-val').textContent = `${Math.round(scale * 100)}%`;
     });
   }
 
-  // Manual Controls
-  function changeZoom(delta) {
-    scale = Math.min(Math.max(scale + delta, 0.5), 3.0);
-    renderPage(pageNum);
-  }
+  // --- GESTURE HANDLING ---
+  const view = document.getElementById('viewport');
 
-  function resetZoom() {
-    scale = 1.0;
-    renderPage(pageNum);
-  }
-
-  // --- SAFARI PINCH-TO-ZOOM LOGIC ---
-  const wrapper = document.getElementById('pdf-wrapper');
-
-  wrapper.addEventListener('gesturestart', (e) => {
+  // Pinch Zoom (iOS Safari exclusive gesture events)
+  view.addEventListener('gesturestart', (e) => {
     e.preventDefault();
-    initialScale = scale;
+    container.style.transition = 'none';
   });
 
-  wrapper.addEventListener('gesturechange', (e) => {
+  view.addEventListener('gesturechange', (e) => {
     e.preventDefault();
-    // Visual feedback (CSS transform is faster than re-rendering)
-    const tempScale = initialScale * e.scale;
-    canvas.style.transform = `scale(${e.scale})`;
+    container.style.transform = `scale(${e.scale})`;
   });
 
-  wrapper.addEventListener('gestureend', (e) => {
+  view.addEventListener('gestureend', (e) => {
     e.preventDefault();
-    // Update the actual PDF scale and re-render for clarity
-    scale = initialScale * e.scale;
-    scale = Math.min(Math.max(scale, 0.5), 4.0);
-    canvas.style.transform = `scale(1)`; // Reset CSS transform
-    renderPage(pageNum); // High-quality re-render
+    scale = Math.min(Math.max(scale * e.scale, initialScale * 0.8), initialScale * 4);
+    container.style.transform = 'scale(1)';
+    container.style.transition = 'transform 0.2s cubic-bezier(0.25, 1, 0.5, 1)';
+    renderPage();
   });
 
-  let lastTap = 0;
-
-  wrapper.addEventListener('touchend', function (e) {
-    const currentTime = new Date().getTime();
-    const tapLength = currentTime - lastTap;
-
-    if (tapLength < 300 && tapLength > 0) {
-      // Double Tap Detected
-      e.preventDefault(); // Stop default Safari zoom
+  // Double Tap Reset
+  view.addEventListener('touchend', (e) => {
+    const now = new Date().getTime();
+    const timesince = now - lastTap;
+    if (timesince < 300 && timesince > 0) {
+      e.preventDefault();
       resetZoom();
     }
-    lastTap = currentTime;
+    lastTap = now;
   });
 
-  // Register Service Worker for PWA Offline Support
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
+  function resetZoom() {
+    scale = initialScale;
+    container.style.transform = 'scale(1)';
+    renderPage();
   }
 </script>
 </body>
