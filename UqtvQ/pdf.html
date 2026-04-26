@@ -168,6 +168,9 @@
     });
   }
 
+  // --- GESTURE HANDLING ---
+  const view = document.getElementById('viewport');
+
   // Update the Gesture End logic to handle scroll area
   view.addEventListener('gestureend', (e) => {
     e.preventDefault();
@@ -180,9 +183,6 @@
     container.style.transform = 'scale(1)';
     renderPage();
   });
-
-  // --- GESTURE HANDLING ---
-  const view = document.getElementById('viewport');
 
   // Pinch Zoom (iOS Safari exclusive gesture events)
   view.addEventListener('gesturestart', (e) => {
