@@ -2,12 +2,12 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Військово-обліковий документ</title>
 
-    <script src="../js/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
     <style>
         :root {
@@ -16,144 +16,91 @@
             --header-bg: rgba(255, 255, 255, 0.85);
         }
 
-        body,
-        html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
             background-color: var(--bg-gray);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overflow: hidden;
+            overflow: hidden; /* Prevents whole-page bouncing */
             -webkit-user-select: none;
             user-select: none;
         }
 
+        /* iOS Header Style */
         .header {
-            position: fixed;
-            top: 0;
-            width: 100%;
+            position: fixed; top: 0; width: 100%;
             height: calc(60px + env(safe-area-inset-top));
             padding-top: env(safe-area-inset-top);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-left: 16px;
-            padding-right: 16px;
-            box-sizing: border-box;
+            display: flex; align-items: center; justify-content: space-between;
+            padding-left: 16px; padding-right: 16px; box-sizing: border-box;
             background: var(--header-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            z-index: 100;
-            border-bottom: 0.5px solid #d1d1d6;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            z-index: 100; border-bottom: 0.5px solid #d1d1d6;
         }
 
         .header-title {
-            font-size: 17px;
-            font-weight: 600;
-            color: #000;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            max-width: 70%;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-size: 17px; font-weight: 600; color: #000;
+            display: flex; align-items: center; gap: 4px;
         }
 
         .done-btn {
-            color: var(--ios-blue);
-            font-size: 17px;
-            font-weight: 600;
-            background: none;
-            border: none;
-            padding: 8px;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
+            color: var(--ios-blue); font-size: 17px; font-weight: 600;
+            background: none; border: none; padding: 8px; cursor: pointer;
         }
 
+        /* PDF Container Logic */
         #viewport {
             width: 100%;
             height: 100%;
-            overflow: auto;
-            padding: calc(75px + env(safe-area-inset-top)) 10px calc(100px + env(safe-area-inset-bottom)) 10px;
+            overflow: auto; /* Allow scrolling */
+            padding: calc(75px + env(safe-area-inset-top)) 10px 100px 10px;
             box-sizing: border-box;
-            display: block;
+            display: block; /* Changed from flex to allow proper overflow scrolling */
             -webkit-overflow-scrolling: touch;
-            touch-action: pan-x pan-y;
+            touch-action: pan-x pan-y; /* Allow finger panning */
         }
 
         #canvas-container {
             background: white;
-            margin: 0 auto;
-            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.12);
+            margin: 0 auto; /* Center the document */
+            box-shadow: 0 5px 25px rgba(0,0,0,0.12);
             border-radius: 6px;
             line-height: 0;
-            transform-origin: top center;
         }
 
         canvas {
-            display: block;
-            border-radius: 6px;
+            display: block; border-radius: 6px;
         }
 
+        /* Bottom Toolbar */
         .toolbar {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
+            position: fixed; bottom: 0; width: 100%;
             height: calc(70px + env(safe-area-inset-bottom));
             padding-bottom: env(safe-area-inset-bottom);
             background: var(--header-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-left: 35px;
-            padding-right: 35px;
-            box-sizing: border-box;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            display: flex; justify-content: space-between; align-items: center;
+            padding-left: 45px; padding-right: 45px; box-sizing: border-box;
             border-top: 0.5px solid #d1d1d6;
             z-index: 100;
         }
 
         .icon-btn {
-            background: none;
-            border: none;
-            padding: 10px;
-            color: var(--ios-blue);
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
+            background: none; border: none; padding: 10px;
+            color: var(--ios-blue); cursor: pointer;
         }
 
-        .icon {
-            width: 26px;
-            height: 26px;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 1.5;
-        }
-
-        .page-counter {
-            font-size: 13px;
-            color: #555;
-            min-width: 64px;
-            text-align: center;
-        }
+        .icon { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.5; }
     </style>
 </head>
-
 <body>
-<div class="header">
-    <button class="done-btn" type="button" onclick="goBack()">Done</button>
 
+<div class="header">
+    <div style="width: 60px;"></div>
     <div class="header-title">
         Військово-обліковий документ
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="#8E8E93">
-            <path d="M1 3l4 4 4-4"></path>
-        </svg>
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="#8E8E93"><path d="M1 3l4 4 4-4"/></svg>
     </div>
-
-    <button class="done-btn" type="button" onclick="resetZoom()">Reset</button>
+    <button class="done-btn" onclick="resetZoom()">Done</button>
 </div>
 
 <div id="viewport">
@@ -163,205 +110,107 @@
 </div>
 
 <div class="toolbar">
-    <button class="icon-btn" type="button" onclick="sharePDF()" aria-label="Share">
-        <svg class="icon" viewBox="0 0 24 24">
-            <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8m-16-4l8-8 8 8m-8-8v13"></path>
-        </svg>
+    <button class="icon-btn">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8m-16-4l8-8 8 8m-8-8v13"/></svg>
     </button>
-
-    <button class="icon-btn" type="button" onclick="prevPage()" aria-label="Previous page">
-        <svg class="icon" viewBox="0 0 24 24">
-            <path d="M15 18l-6-6 6-6"></path>
-        </svg>
-    </button>
-
-    <div id="page-counter" class="page-counter">1 / 1</div>
-
-    <button class="icon-btn" type="button" onclick="nextPage()" aria-label="Next page">
-        <svg class="icon" viewBox="0 0 24 24">
-            <path d="M9 18l6-6-6-6"></path>
-        </svg>
-    </button>
-
-    <button class="icon-btn" type="button" onclick="zoomIn()" aria-label="Zoom in">
-        <svg class="icon" viewBox="0 0 24 24" style="stroke-width: 2;">
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="M11 8v6"></path>
-            <path d="M8 11h6"></path>
-            <path d="M21 21l-4.35-4.35"></path>
-        </svg>
+    <button class="icon-btn">
+        <svg class="icon" viewBox="0 0 24 24" style="stroke-width: 2;"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
     </button>
 </div>
 
 <script>
-  const url = 'vod.pdf';
-
-  let pdfDoc = null;
-  let scale = 1.0;
-  let initialScale = 1.0;
-  let currentPage = 1;
-  let lastTap = 0;
-  let isRendering = false;
-  let pendingPage = null;
-
-  const view = document.getElementById('viewport');
+  const url = 'https://amanjeliy.github.io/rlpss/UqtvQ/vod.pdf'; // Path to your file
+  let pdfDoc = null, scale = 1.0, initialScale = 1.0, lastTap = 0;
   const canvas = document.getElementById('pdf-canvas');
   const container = document.getElementById('canvas-container');
-  const pageCounter = document.getElementById('page-counter');
   const ctx = canvas.getContext('2d');
 
   const pdfjsLib = window['pdfjs-dist/build/pdf'];
-  pdfjsLib.GlobalWorkerOptions.workerSrc = '../js/pdf.worker.min.js';
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-  pdfjsLib.getDocument(url).promise.then(function(pdf) {
+  // Initialize and Auto-Fit
+  pdfjsLib.getDocument(url).promise.then(pdf => {
     pdfDoc = pdf;
-
-    pdf.getPage(1).then(function(page) {
+    pdf.getPage(1).then(page => {
       const unscaledViewport = page.getViewport({ scale: 1 });
-      const screenWidth = window.innerWidth - 32;
+      const screenWidth = window.innerWidth - 32; // Responsive padding
 
+      // Calculate scale to fit iPhone screen width perfectly
       scale = screenWidth / unscaledViewport.width;
       initialScale = scale;
 
-      renderPage(1);
+      renderPage();
     });
   });
 
-  function renderPage(pageNumber) {
-    if (!pdfDoc) return;
-
-    if (isRendering) {
-      pendingPage = pageNumber;
-      return;
-    }
-
-    isRendering = true;
-
-    pdfDoc.getPage(pageNumber).then(function(page) {
+  function renderPage() {
+    pdfDoc.getPage(1).then(page => {
+      // Fix for upside-down/rotated PDFs
       const rotation = page.rotate;
       const dpr = window.devicePixelRatio || 1;
-      const viewport = page.getViewport({
-        scale: scale,
-        rotation: rotation
-      });
+
+      // Use the rotation property in the viewport
+      const viewport = page.getViewport({ scale: scale, rotation: rotation });
 
       canvas.width = viewport.width * dpr;
       canvas.height = viewport.height * dpr;
 
-      canvas.style.width = viewport.width + 'px';
-      canvas.style.height = viewport.height + 'px';
+      // Crucial: Update the CSS size so the #viewport knows it needs to scroll
+      canvas.style.width = viewport.width + "px";
+      canvas.style.height = viewport.height + "px";
 
       const renderContext = {
         canvasContext: ctx,
         viewport: viewport,
         transform: [dpr, 0, 0, dpr, 0, 0]
       };
-
-      page.render(renderContext).promise.then(function() {
-        currentPage = pageNumber;
-        pageCounter.textContent = currentPage + ' / ' + pdfDoc.numPages;
-        isRendering = false;
-
-        if (pendingPage !== null) {
-          const nextPendingPage = pendingPage;
-          pendingPage = null;
-          renderPage(nextPendingPage);
-        }
-      });
+      page.render(renderContext);
     });
   }
 
-  function prevPage() {
-    if (!pdfDoc || currentPage <= 1) return;
-    renderPage(currentPage - 1);
-  }
+  // --- GESTURE HANDLING ---
+  const view = document.getElementById('viewport');
 
-  function nextPage() {
-    if (!pdfDoc || currentPage >= pdfDoc.numPages) return;
-    renderPage(currentPage + 1);
-  }
+  // Update the Gesture End logic to handle scroll area
+  view.addEventListener('gestureend', (e) => {
+    e.preventDefault();
+    // Calculate new scale
+    let newScale = scale * e.scale;
+    scale = Math.min(Math.max(newScale, initialScale * 0.8), initialScale * 5);
 
-  function zoomIn() {
-    scale = Math.min(scale * 1.25, initialScale * 5);
+    // Remove the visual CSS scaling and do a real render
+    // This makes the internal "scrollable area" expand to match the zoom
     container.style.transform = 'scale(1)';
-    renderPage(currentPage);
-  }
+    renderPage();
+  });
 
-  function resetZoom() {
-    scale = initialScale;
-    container.style.transform = 'scale(1)';
-    renderPage(currentPage);
-    view.scrollTop = 0;
-    view.scrollLeft = 0;
-  }
-
-  function goBack() {
-    if (window.history.length > 1) {
-      window.history.back();
-    } else {
-      window.location.href = 'index.html';
-    }
-  }
-
-  function sharePDF() {
-    const absoluteUrl = new URL(url, window.location.href).href;
-
-    if (navigator.share) {
-      navigator.share({
-        title: 'Військово-обліковий документ',
-        url: absoluteUrl
-      });
-    } else {
-      window.open(absoluteUrl, '_blank');
-    }
-  }
-
-  view.addEventListener('gesturestart', function(e) {
+  // Pinch Zoom (iOS Safari exclusive gesture events)
+  view.addEventListener('gesturestart', (e) => {
     e.preventDefault();
     container.style.transition = 'none';
   });
 
-  view.addEventListener('gesturechange', function(e) {
+  view.addEventListener('gesturechange', (e) => {
     e.preventDefault();
-    container.style.transform = 'scale(' + e.scale + ')';
+    container.style.transform = `scale(${e.scale})`;
   });
 
-  view.addEventListener('gestureend', function(e) {
-    e.preventDefault();
-
-    const newScale = scale * e.scale;
-    scale = Math.min(Math.max(newScale, initialScale * 0.8), initialScale * 5);
-
-    container.style.transform = 'scale(1)';
-    renderPage(currentPage);
-  });
-
-  view.addEventListener('touchend', function(e) {
+  // Double Tap Reset
+  view.addEventListener('touchend', (e) => {
     const now = new Date().getTime();
-    const timeSince = now - lastTap;
-
-    if (timeSince < 300 && timeSince > 0) {
+    const timesince = now - lastTap;
+    if (timesince < 300 && timesince > 0) {
       e.preventDefault();
       resetZoom();
     }
-
     lastTap = now;
   });
 
-  window.addEventListener('resize', function() {
-    if (!pdfDoc) return;
-
-    pdfDoc.getPage(currentPage).then(function(page) {
-      const unscaledViewport = page.getViewport({ scale: 1 });
-      const screenWidth = window.innerWidth - 32;
-      const zoomRatio = scale / initialScale;
-
-      initialScale = screenWidth / unscaledViewport.width;
-      scale = initialScale * zoomRatio;
-
-      renderPage(currentPage);
-    });
-  });
+  function resetZoom() {
+    scale = initialScale;
+    container.style.transform = 'scale(1)';
+    renderPage();
+  }
 </script>
 </body>
 </html>
