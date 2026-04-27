@@ -1,42 +1,43 @@
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(function() {
-        document.body.style.backgroundColor = '#dfdeca';
-    }, 3000);
+document.addEventListener('DOMContentLoaded', function () {
+  setTimeout(function () {
+    document.body.style.backgroundColor = '#dfdeca';
+  }, 3000);
 
-    setTimeout(function() {
-        var loader = document.querySelector('.loader');
-        if (loader) {
-            loader.style.display = 'none';
-        }
-    }, 3000);
+  setTimeout(function () {
+    var loader = document.querySelector('.loader');
+    if (loader) {
+      loader.style.display = 'none';
+    }
+  }, 3000);
 });
 
-$('.m_Copydevice').on('click', function() {
-    const el = $(this);
-    el.addClass('active');
+$('.m_Copydevice').on('click', function () {
+  const el = $(this);
+  el.addClass('active');
 
-    setTimeout(function() {
-        el.removeClass('active');
-    }, 3000);
-}); 
+  setTimeout(function () {
+    el.removeClass('active');
+  }, 3000);
+});
 
-(function($){
-  function setWrapWidth(){
+(function ($) {
+  function setWrapWidth () {
     var w = $(window).width() - 64;
     if (w < 0) w = 0;
     $('.wrap, .wrap2').css('width', w + 'px');
   }
+
   $(document).ready(setWrapWidth);
   $(window).on('resize', setWrapWidth);
 })(jQuery);
 
- 
 
 $(document).ready(function () {
-  function flipCard() {
+  function flipCard () {
     $('.wrap-flipcard').toggleClass('flipped');
   }
-  const wrapFlipcard = $('.wrap-flipcard')[0]; 
+
+  const wrapFlipcard = $('.wrap-flipcard')[0];
   const hammer = new Hammer(wrapFlipcard);
   hammer.on('swipeleft swiperight', function (event) {
     flipCard();
@@ -46,91 +47,128 @@ $(document).ready(function () {
   });
 });
 
-$(document).ready(function() {
-    $('.menu').on('click', function() {
-        $('.popup-menu').fadeIn(100);
-        $('.popup-vac').fadeOut(100);
-    });
+$(document).ready(function () {
+  const elements = document.querySelectorAll('.notificationText');
+  if (!elements.length) return;
 
-    $('.services').on('click', function() {
-        $('.popup-services').fadeIn(100);
-        $('.popup-menu').fadeOut(100);
-        $('.popup-vac').fadeOut(100);
-    });
+  const pad = n => String(n).padStart(2, '0');
 
-    $('.vacancies').on('click', function() {
-        $('.popup-vac').fadeIn(100);
-        $('.popup-menu').fadeOut(100);
-    });
+  const getStableRandomTime = () => {
+    const now = new Date(Date.now() - 4 * 60 * 60 * 1000);
 
-    $('.mydoc').on('click', function() {
-        $('.popup-menu, .popup-services, .popup-vac').fadeOut(100);
-    });
+    // інтервал стабільності (у хвилинах)
+    const SLOT_MINUTES = 15;
 
-    $('.nav').on('click', function() {
-        $('.nav').removeClass('active');
-        $(this).addClass('active');
-    });
+    // номер часового "вікна"
+    const slot =
+      Math.floor(
+        (now.getHours() * 60 + now.getMinutes()) / SLOT_MINUTES
+      );
+
+    // простий детермінований псевдорандом
+    const randomMinute = (slot * 37) % 60;
+
+    now.setMinutes(randomMinute, 0, 0);
+
+    return (
+      `${pad(now.getHours())}:${pad(now.getMinutes())} | ` +
+      `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()}`
+    );
+  };
+
+  const time = getStableRandomTime();
+
+  elements.forEach(el => {
+    el.textContent = el.textContent.replace(
+      /\d{2}:\d{2}\s\|\s\d{2}\.\d{2}\.\d{4}/g,
+      time
+    );
+  });
+});
+$(document).ready(function () {
+  $('.menu').on('click', function () {
+    $('.popup-menu').fadeIn(100);
+    $('.popup-vac').fadeOut(100);
+  });
+
+  $('.services').on('click', function () {
+    $('.popup-services').fadeIn(100);
+    $('.popup-menu').fadeOut(100);
+    $('.popup-vac').fadeOut(100);
+  });
+
+  $('.vacancies').on('click', function () {
+    $('.popup-vac').fadeIn(100);
+    $('.popup-menu').fadeOut(100);
+  });
+
+  $('.mydoc').on('click', function () {
+    $('.popup-menu, .popup-services, .popup-vac').fadeOut(100);
+  });
+
+  $('.nav').on('click', function () {
+    $('.nav').removeClass('active');
+    $(this).addClass('active');
+  });
 });
 
 
+$(document).ready(function () {
 
-$(document).ready(function() {
+  const popup = $('.popup-fullmenu')[0];
+  const hammer = new Hammer(popup);
 
-    const popup = $('.popup-fullmenu')[0];
-    const hammer = new Hammer(popup);
+  hammer.get('swipe').set({ direction: Hammer.DIRECTION_DOWN });
+  hammer.on('swipedown', function () {
+    $('.popup-fullmenu, .popup-fullmenu-1, .popup-fullmenu-2, .popup-fullmenu-3, .popup-fullmenu-4, .popup-fullmenu-5, .popup-fullmenu-6').removeClass('active');
+    $('.overlay').fadeOut();
+  });
 
-    hammer.get('swipe').set({ direction: Hammer.DIRECTION_DOWN });
-    hammer.on('swipedown', function() {
-        $('.popup-fullmenu, .popup-fullmenu-1, .popup-fullmenu-2, .popup-fullmenu-3, .popup-fullmenu-4, .popup-fullmenu-5, .popup-fullmenu-6').removeClass('active');
-        $('.overlay').fadeOut();
-    });
+  $('.link-menu').click(function (event) {
+    event.stopPropagation();
+    $('.overlay').fadeIn();
+    $('.popup-fullmenu').addClass('active');
+  });
 
-    $('.link-menu').click(function(event) {
-        event.stopPropagation();
-        $('.overlay').fadeIn();
-        $('.popup-fullmenu').addClass('active');
-    });
+  $('#menu-1').click(function (event) {
+    event.stopPropagation();
+    $('.overlay').fadeIn();
+    $('.popup-fullmenu').removeClass('active');
+    $('.popup-fullmenu-1').addClass('active');
+  });
 
-    $('#menu-1').click(function(event) {
-        event.stopPropagation();
-        $('.overlay').fadeIn();
-        $('.popup-fullmenu').removeClass('active');
-        $('.popup-fullmenu-1').addClass('active');
-    });
-
-    $('#menu-3').click(function(event) {
-        event.stopPropagation();
-        $('.overlay').fadeIn();
-        $('.popup-fullmenu').removeClass('active');
-        $('.popup-fullscreen-3').addClass('active');
-    });
+  $('#menu-3').click(function (event) {
+    event.stopPropagation();
+    $('.overlay').fadeIn();
+    $('.popup-fullmenu').removeClass('active');
+    $('.popup-fullscreen-3').addClass('active');
+  });
 
 
-    $('.overlay').click(function() {
-        $('.popup-fullmenu, .popup-fullmenu-1, .popup-fullmenu-1, .popup-fullmenu-2, .popup-fullmenu-3, .popup-fullmenu-4, .popup-fullmenu-5, .popup-fullmenu-6').removeClass('active');
-        $('.overlay').fadeOut();
-    });
+  $('.overlay').click(function () {
+    $('.popup-fullmenu, .popup-fullmenu-1, .popup-fullmenu-1, .popup-fullmenu-2, .popup-fullmenu-3, .popup-fullmenu-4, .popup-fullmenu-5, .popup-fullmenu-6').removeClass('active');
+    $('.overlay').fadeOut();
+  });
 
 });
 
-$(document).ready(function() {
-    function flipCard() {
-        console.log('Flip card triggered');
-    }
+$(document).ready(function () {
+  function flipCard () {
+    console.log('Flip card triggered');
+  }
 
-    $('.flip-card').click(function() {
-        flipCard();
-    });
+  $('.flip-card').click(function () {
+    flipCard();
+  });
 
-    $('.link-menu').click(function(event) {
-        event.stopPropagation();
-        $('.overlay').fadeIn();
-        $('.popup-fullmenu').addClass('active');
-    });
+  $('.link-menu').click(function (event) {
+    event.stopPropagation();
+    $('.overlay').fadeIn();
+    $('.popup-fullmenu').addClass('active');
+  });
 });
- 
-$(function() {
+
+$(function () {
   const months = [
     "січня", "лютого", "березня", "квітня", "травня", "червня",
     "липня", "серпня", "вересня", "жовтня", "листопада", "грудня"
@@ -148,180 +186,179 @@ $(function() {
 });
 
 
-$('.lock').on('click', function() {
-    const notice = $('#topNotice');
+$('.lock').on('click', function () {
+  const notice = $('#topNotice');
 
-    notice.addClass('active');
+  notice.addClass('active');
 
-    setTimeout(() => {
-        notice.removeClass('active');
-    }, 2000);
-}); 
+  setTimeout(() => {
+    notice.removeClass('active');
+  }, 2000);
+});
 
 
-jQuery(function($){
-    $('#menu-3').on('click', function(e){
-        e.preventDefault();
+jQuery(function ($) {
+  $('#menu-3').on('click', function (e) {
+    e.preventDefault();
 
-        $('.popup-fullmenu').removeClass('active');
-        $('.overlay').hide();
+    $('.popup-fullmenu').removeClass('active');
+    $('.overlay').hide();
 
-        $('.popup-fullscreen-3').show();
+    $('.popup-fullscreen-3').show();
+  });
+
+  $(document).on('click', '.popup-fullscreen-3 .popup-fullscreen-close', function (e) {
+    e.preventDefault();
+
+    $('.popup-fullscreen-3').hide();
+  });
+
+  $('#menu-7').on('click', function (e) {
+    e.preventDefault();
+
+    $('.popup-fullmenu').removeClass('active');
+    $('.overlay').hide();
+
+    $('.popup-fullscreen-4').show();
+  });
+
+  $(document).on('click', '.popup-fullscreen-4 .popup-fullscreen-close', function (e) {
+    e.preventDefault();
+
+    $('.popup-fullscreen-4').hide();
+  });
+
+  $('#menu-4').on('click', function (e) {
+    e.preventDefault();
+
+    $('.popup-fullmenu').removeClass('active');
+    $('.overlay').hide();
+
+    $('.popup-fullscreen-5').show();
+  });
+
+  $(document).on('click', '.popup-fullscreen-5 .popup-fullscreen-close', function (e) {
+    e.preventDefault();
+
+    $('.popup-fullscreen-5').hide();
+  });
+
+  $('#menu-5').on('click', function (e) {
+    e.preventDefault();
+
+    $('.popup-fullmenu').removeClass('active');
+    $('.overlay').hide();
+
+    $('.popup-fullscreen-6').show();
+  });
+
+  $(document).on('click', '.popup-fullscreen-6 .popup-fullscreen-close', function (e) {
+    e.preventDefault();
+
+    $('.popup-fullscreen-6').hide();
+  });
+
+  jQuery(function ($) {
+
+    $('#popup-fullscreen-prev').on('click', function (e) {
+      e.preventDefault();
+
+      $('.popup-fullscreen-6').hide(); // display: none
     });
 
-    $(document).on('click', '.popup-fullscreen-3 .popup-fullscreen-close', function(e){
-        e.preventDefault();
+  });
 
-        $('.popup-fullscreen-3').hide();
-    });
+  $('#menu-6, #Question, #Fix, #Queue, #Session, #Settings, #Support, #Allvacancies, #Camera').on('click', function (e) {
+    e.preventDefault();
 
-    $('#menu-7').on('click', function(e){
-        e.preventDefault();
+    $('.popup-fullmenu').removeClass('active');
+    $('.overlay').hide();
 
-        $('.popup-fullmenu').removeClass('active');
-        $('.overlay').hide();
+    $('.popup-fullscreen-error').show();
+  });
 
-        $('.popup-fullscreen-4').show();
-    });
+  $(document).on('click', '.popup-fullscreen-error .popup-fullscreen-close', function (e) {
+    e.preventDefault();
 
-    $(document).on('click', '.popup-fullscreen-4 .popup-fullscreen-close', function(e){
-        e.preventDefault();
+    $('.popup-fullscreen-error').hide();
+  });
 
-        $('.popup-fullscreen-4').hide();
-    });
+  $('#Fines').on('click', function (e) {
+    e.preventDefault();
 
-    $('#menu-4').on('click', function(e){
-        e.preventDefault();
+    $('.popup-fullmenu').removeClass('active');
+    $('.overlay').hide();
 
-        $('.popup-fullmenu').removeClass('active');
-        $('.overlay').hide();
+    $('.popup-fullscreen-fines').show();
+  });
 
-        $('.popup-fullscreen-5').show();
-    });
+  $(document).on('click', '.popup-fullscreen-fines .popup-fullscreen-close', function (e) {
+    e.preventDefault();
 
-    $(document).on('click', '.popup-fullscreen-5 .popup-fullscreen-close', function(e){
-        e.preventDefault();
+    $('.popup-fullscreen-fines').hide();
+  });
 
-        $('.popup-fullscreen-5').hide();
-    });
+  $('#go-fines-waiting').on('click', function (e) {
+    e.preventDefault();
 
-    $('#menu-5').on('click', function(e){
-        e.preventDefault();
+    $('.popup-fullmenu').removeClass('active');
+    $('.popup-fullscreen-fines').removeClass('active');
+    $('.overlay').hide();
 
-        $('.popup-fullmenu').removeClass('active');
-        $('.overlay').hide();
+    $('.popup-fullscreen-fines-waiting').show();
+  });
 
-        $('.popup-fullscreen-6').show();
-    });
+  $(document).on('click', '.popup-fullscreen-fines-waiting .popup-fullscreen-close', function (e) {
+    e.preventDefault();
 
-    $(document).on('click', '.popup-fullscreen-6 .popup-fullscreen-close', function(e){
-        e.preventDefault();
-
-        $('.popup-fullscreen-6').hide();
-    });
-
-    jQuery(function($){
-
-        $('#popup-fullscreen-prev').on('click', function(e){
-            e.preventDefault();
-
-            $('.popup-fullscreen-6').hide(); // display: none
-        });
-
-    });
-
-    $('#menu-6, #Question, #Fix, #Queue, #Session, #Settings, #Support, #Allvacancies, #Camera').on('click', function(e){
-        e.preventDefault();
-
-        $('.popup-fullmenu').removeClass('active');
-        $('.overlay').hide();
-
-        $('.popup-fullscreen-error').show();
-    });
-
-    $(document).on('click', '.popup-fullscreen-error .popup-fullscreen-close', function(e){
-        e.preventDefault();
-
-        $('.popup-fullscreen-error').hide();
-    });
-
-    $('#Fines').on('click', function(e){
-        e.preventDefault();
-
-        $('.popup-fullmenu').removeClass('active');
-        $('.overlay').hide();
-
-        $('.popup-fullscreen-fines').show();
-    });
-
-    $(document).on('click', '.popup-fullscreen-fines .popup-fullscreen-close', function(e){
-        e.preventDefault();
-
-        $('.popup-fullscreen-fines').hide();
-    });
-
-    $('#go-fines-waiting').on('click', function(e){
-        e.preventDefault();
-
-        $('.popup-fullmenu').removeClass('active');
-        $('.popup-fullscreen-fines').removeClass('active');
-        $('.overlay').hide();
-
-        $('.popup-fullscreen-fines-waiting').show();
-    });
-
-    $(document).on('click', '.popup-fullscreen-fines-waiting .popup-fullscreen-close', function(e){
-        e.preventDefault();
-
-        $('.popup-fullscreen-fines-waiting').hide();
-        $('.popup-fullscreen-fines').hide();
-    });
+    $('.popup-fullscreen-fines-waiting').hide();
+    $('.popup-fullscreen-fines').hide();
+  });
 
 });
 
-function restartMarquee() {
-    const track = document.querySelector('.track');
-    track.style.animation = 'none';
-    track.offsetHeight; // force reflow
-    track.style.animation = '';
+function restartMarquee () {
+  const track = document.querySelector('.track');
+  track.style.animation = 'none';
+  track.offsetHeight; // force reflow
+  track.style.animation = '';
 }
 
-function subtractRandomMinutes(date, minMinutes = 10, maxMinutes = 240) {
-    const minutes =
-      Math.floor(Math.random() * (maxMinutes - minMinutes + 1)) + minMinutes;
+function subtractRandomMinutes (date, minMinutes = 10, maxMinutes = 240) {
+  const minutes =
+    Math.floor(Math.random() * (maxMinutes - minMinutes + 1)) + minMinutes;
 
-    return new Date(date.getTime() - minutes * 60 * 1000);
+  return new Date(date.getTime() - minutes * 60 * 1000);
 }
 
 $(document).ready(function () {
 
-    const items = $(".list-notification li");
-    let currentDate = new Date();
+  const items = $(".list-notification li");
+  let currentDate = new Date();
 
-    items.each(function (index) {
+  items.each(function (index) {
 
-        if (index === 0) {
-            currentDate = new Date(); // текущая дата
-            currentDate.setHours(currentDate.getHours() - 4);
-        } 
-        else {
-            currentDate = subtractRandomMinutes(
-              currentDate,
-              index % 2 === 0 ? 10 : 720,
-              index % 2 === 0 ? 5760 : 240
-            );
-        }
+    if (index === 0) {
+      currentDate = new Date(); // текущая дата
+      currentDate.setHours(currentDate.getHours() - 4);
+    } else {
+      currentDate = subtractRandomMinutes(
+        currentDate,
+        index % 2 === 0 ? 10 : 720,
+        index % 2 === 0 ? 5760 : 240
+      );
+    }
 
-        let dd = String(currentDate.getDate()).padStart(2, "0");
-        let mm = String(currentDate.getMonth() + 1).padStart(2, "0");
-        let yyyy = currentDate.getFullYear();
+    let dd = String(currentDate.getDate()).padStart(2, "0");
+    let mm = String(currentDate.getMonth() + 1).padStart(2, "0");
+    let yyyy = currentDate.getFullYear();
 
-        let hh = String(currentDate.getHours()).padStart(2, "0");
-        let min = String(currentDate.getMinutes()).padStart(2, "0");
+    let hh = String(currentDate.getHours()).padStart(2, "0");
+    let min = String(currentDate.getMinutes()).padStart(2, "0");
 
-        const finalString = `${dd}.${mm}.${yyyy} о ${hh}:${min}`;
+    const finalString = `${dd}.${mm}.${yyyy} о ${hh}:${min}`;
 
-        $(this).find(".not-time").text(finalString);
-    });
+    $(this).find(".not-time").text(finalString);
+  });
 
 });
