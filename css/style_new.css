@@ -841,4 +841,89 @@ span.ver {
 	height: 85%;
 	padding-bottom: 330px !important;
   }
-} 
+}
+#pdfOverlay {
+	position: fixed;
+	inset: 0;
+	background: #fff;
+	z-index: 999999;
+	display: none;
+	padding-top: env(safe-area-inset-top);
+	padding-bottom: env(safe-area-inset-bottom);
+}
+
+.pdf-header {
+	position: sticky;
+	top: 0;
+	height: 48px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #fff;
+	z-index: 10;
+}
+
+.pdf-header button {
+	background: none;
+	border: none;
+	color: #4da3ff;
+	font-size: 17px;
+}
+
+.pdf-title {
+	color: #000;
+	font-size: 16px;
+	background: #fff;
+	font-weight: 500;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 70%;
+}
+
+#pdfViewer {
+	overflow: auto;
+	touch-action: none;
+	overscroll-behavior: contain;
+	background: #fff;
+}
+
+#pdf-canvas {
+	display: block;
+}
+
+#pdfViewer canvas {
+	width: 100% !important;
+	height: auto !important;
+	display: block;
+}
+
+.pdf-bottom-bar {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 64px;
+	padding: 0 28px env(safe-area-inset-bottom);
+	background: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	border-top-left-radius: 18px;
+	border-top-right-radius: 18px;
+	box-shadow: 0 -6px 18px rgba(0,0,0,.08);
+	z-index: 20;
+}
+
+.pdf-action {
+	background: none;
+	border: none;
+	padding: 8px;
+	color: #0a84ff; /* iOS blue */
+	cursor: pointer;
+}
+
+.pdf-action svg {
+	width: 26px;
+	height: 26px;
+}
