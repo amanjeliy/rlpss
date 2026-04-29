@@ -884,17 +884,22 @@ span.ver {
 }
 
 #pdfViewer {
-	width: 100%;
-	height: calc(100% - 120px);
+	position: absolute;
+	top: calc(56px + env(safe-area-inset-top));
+	left: 0;
+	right: 0;
+	bottom: calc(64px + env(safe-area-inset-bottom));
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
-	touch-action: pan-x pan-y;
+	touch-action: none;
 	text-align: center;
+	background: #fff;
 }
 
 #pdf-canvas {
 	display: block;
 	margin: 0 auto;
+	transform-origin: center center;
 }
 
 #pdfViewer canvas {

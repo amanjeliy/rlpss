@@ -1016,17 +1016,17 @@
   const overlay = document.getElementById('pdfOverlay');
   const viewer = document.getElementById('pdfViewer');
 
-  document.getElementById('menu-2').addEventListener('click', () => {
-    openPdf('vod.pdf');
-  });
-
-  document.getElementById('pdfDone').addEventListener('click', closePdf);
-
   let pdfDoc = null;
   let currentPage = null;
   let currentScale = 1;
   let renderTask = null;
   let pinchInitialized = false;
+
+  document.getElementById('menu-2').addEventListener('click', () => {
+    openPdf('vod.pdf');
+  });
+
+  document.getElementById('pdfDone').addEventListener('click', closePdf);
 
   function openPdf(url) {
     overlay.style.display = 'block';
@@ -1055,6 +1055,9 @@
         currentScale = availableWidth / unscaledViewport.width;
 
         renderPdf();
+      })
+      .catch(error => {
+        console.error('PDF load error:', error);
       });
   }
 
@@ -1069,7 +1072,12 @@
     const viewport = currentPage.getViewport({ scale: currentScale });
 
     if (renderTask) {
-      renderTask.cancel();
+      try {
+        renderTask.cancel();
+      } catch (e) {
+        console.warn('Render cancel failed:', e);
+      }
+
       renderTask = null;
     }
 
@@ -1078,14 +1086,29 @@
 
     canvas.style.width = viewport.width + 'px';
     canvas.style.height = viewport.height + 'px';
+    canvas.style.display = 'block';
+    canvas.style.margin = '0 auto';
+    canvas.style.transform = 'none';
+    canvas.style.transformOrigin = 'center center';
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     renderTask = currentPage.render({
       canvasContext: ctx,
-      viewport
+      viewport: viewport
     });
+
+    renderTask.promise
+      .then(() => {
+        renderTask = null;
+      })
+      .catch(error => {
+        if (error && error.name !== 'RenderingCancelledException') {
+          console.error('PDF render error:', error);
+        }
+        renderTask = null;
+      });
   }
 
   function initPdfPinchZoom() {
@@ -1094,16 +1117,21 @@
     let tempScale = 1;
     let pinching = false;
 
+    function getCanvas() {
+      return document.getElementById('pdf-canvas');
+    }
+
     function distance(touches) {
       const dx = touches[0].clientX - touches[1].clientX;
       const dy = touches[0].clientY - touches[1].clientY;
+
       return Math.hypot(dx, dy);
     }
 
     viewer.addEventListener('touchstart', e => {
       if (e.touches.length !== 2) return;
 
-      const canvas = document.getElementById('pdf-canvas');
+      const canvas = getCanvas();
       if (!canvas) return;
 
       e.preventDefault();
@@ -1120,13 +1148,13 @@
     viewer.addEventListener('touchmove', e => {
       if (!pinching || e.touches.length !== 2) return;
 
-      const canvas = document.getElementById('pdf-canvas');
+      const canvas = getCanvas();
       if (!canvas) return;
 
       e.preventDefault();
 
       const d = distance(e.touches);
-      tempScale = Math.min(5, Math.max(0.5, d / startDistance));
+      tempScale = Math.min(4, Math.max(0.7, d / startDistance));
 
       canvas.style.transform = `scale(${tempScale})`;
     }, { passive: false });
@@ -1134,7 +1162,7 @@
     viewer.addEventListener('touchend', () => {
       if (!pinching) return;
 
-      const canvas = document.getElementById('pdf-canvas');
+      const canvas = getCanvas();
       if (!canvas) return;
 
       pinching = false;
@@ -1142,17 +1170,54 @@
       canvas.style.transform = 'none';
       canvas.style.willChange = 'auto';
 
-      currentScale = Math.min(5, Math.max(0.5, startScale * tempScale));
+      currentScale = Math.min(4, Math.max(0.7, startScale * tempScale));
+
       renderPdf();
+    }, { passive: false });
+
+    viewer.addEventListener('touchcancel', () => {
+      const canvas = getCanvas();
+
+      pinching = false;
+
+      if (canvas) {
+        canvas.style.transform = 'none';
+        canvas.style.willChange = 'auto';
+      }
     }, { passive: false });
   }
 
   function closePdf() {
     overlay.style.display = 'none';
     viewer.innerHTML = '';
-    currentPage = null;
+
     pdfDoc = null;
+    currentPage = null;
+    currentScale = 1;
+
+    if (renderTask) {
+      try {
+        renderTask.cancel();
+      } catch (e) {
+        console.warn('Render cancel failed:', e);
+      }
+
+      renderTask = null;
+    }
   }
+
+  document.getElementById('shareBtn').onclick = async () => {
+    if (navigator.share) {
+      await navigator.share({
+        title: document.title,
+        url: window.location.href
+      });
+    }
+  };
+
+  document.getElementById('searchBtn').onclick = () => {
+    console.log('Search clicked');
+  };
 </script>
 
 </body>
