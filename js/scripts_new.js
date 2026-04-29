@@ -252,20 +252,10 @@ jQuery(function ($) {
     $('.popup-fullscreen-6').show();
   });
 
-  $(document).on('click', '.popup-fullscreen-6 .popup-fullscreen-close', function (e) {
+  $('#popup-fullscreen-prev').on('click', function (e) {
     e.preventDefault();
 
-    $('.popup-fullscreen-6').hide();
-  });
-
-  jQuery(function ($) {
-
-    $('#popup-fullscreen-prev').on('click', function (e) {
-      e.preventDefault();
-
-      $('.popup-fullscreen-6').hide(); // display: none
-    });
-
+    $('.popup-fullscreen-6').hide(); // display: none
   });
 
   $('#menu-6, #Question, #Fix, #Queue, #Session, #Settings, #Support, #Allvacancies, #Camera').on('click', function (e) {

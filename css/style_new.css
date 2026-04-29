@@ -511,6 +511,16 @@ span.ver {
 	height: 30px;
 	display: block;
 }
+.button-prev a,
+.button-prev .prev {
+	display: block;
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	pointer-events: auto;
+}
 .popup-fullscreen-wrap .button a.popup-fullscreen-close,
 .popup-fullscreen-wrap .button a.popup-fullscreen-close-waiting {
 	background: #ee8e37;
