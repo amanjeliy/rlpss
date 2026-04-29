@@ -1015,31 +1015,43 @@
 
   const overlay = document.getElementById('pdfOverlay');
   const viewer = document.getElementById('pdfViewer');
+  const openPdfButton = document.getElementById('menu-2');
+  const doneButton = document.getElementById('pdfDone');
+  const shareButton = document.getElementById('shareBtn');
+  const searchButton = document.getElementById('searchBtn');
 
   let pdfDoc = null;
   let currentPage = null;
   let currentScale = 1;
   let renderTask = null;
-  let pinchInitialized = false;
 
-  document.getElementById('menu-2').addEventListener('click', () => {
-    openPdf('vod.pdf');
-  });
+  let startDistance = 0;
+  let startScale = 1;
+  let tempScale = 1;
+  let pinching = false;
 
-  document.getElementById('pdfDone').addEventListener('click', closePdf);
+  if (openPdfButton) {
+    openPdfButton.addEventListener('click', () => {
+      openPdf('vod.pdf');
+    });
+  }
+
+  if (doneButton) {
+    doneButton.addEventListener('click', closePdf);
+  }
 
   function openPdf(url) {
     overlay.style.display = 'block';
     viewer.innerHTML = '';
 
+    const pageWrap = document.createElement('div');
+    pageWrap.id = 'pdfPage';
+
     const canvas = document.createElement('canvas');
     canvas.id = 'pdf-canvas';
-    viewer.appendChild(canvas);
 
-    if (!pinchInitialized) {
-      initPdfPinchZoom();
-      pinchInitialized = true;
-    }
+    pageWrap.appendChild(canvas);
+    viewer.appendChild(pageWrap);
 
     pdfjsLib.getDocument(url).promise
       .then(pdf => {
@@ -1049,10 +1061,10 @@
       .then(page => {
         currentPage = page;
 
-        const unscaledViewport = page.getViewport({ scale: 1 });
+        const baseViewport = page.getViewport({ scale: 1 });
         const availableWidth = viewer.clientWidth || window.innerWidth;
 
-        currentScale = availableWidth / unscaledViewport.width;
+        currentScale = availableWidth / baseViewport.width;
 
         renderPdf();
       })
@@ -1065,7 +1077,9 @@
     if (!currentPage) return;
 
     const canvas = document.getElementById('pdf-canvas');
-    if (!canvas) return;
+    const pageWrap = document.getElementById('pdfPage');
+
+    if (!canvas || !pageWrap) return;
 
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
@@ -1074,25 +1088,25 @@
     if (renderTask) {
       try {
         renderTask.cancel();
-      } catch (e) {
-        console.warn('Render cancel failed:', e);
+      } catch (error) {
+        console.warn('Render cancel error:', error);
       }
 
       renderTask = null;
     }
 
-    canvas.width = viewport.width * dpr;
-    canvas.height = viewport.height * dpr;
+    canvas.width = Math.floor(viewport.width * dpr);
+    canvas.height = Math.floor(viewport.height * dpr);
 
     canvas.style.width = viewport.width + 'px';
     canvas.style.height = viewport.height + 'px';
-    canvas.style.display = 'block';
-    canvas.style.margin = '0 auto';
-    canvas.style.transform = 'none';
-    canvas.style.transformOrigin = 'center center';
+
+    pageWrap.style.width = viewport.width + 'px';
+    pageWrap.style.height = viewport.height + 'px';
+    pageWrap.style.transform = 'none';
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, viewport.width, viewport.height);
 
     renderTask = currentPage.render({
       canvasContext: ctx,
@@ -1107,85 +1121,84 @@
         if (error && error.name !== 'RenderingCancelledException') {
           console.error('PDF render error:', error);
         }
+
         renderTask = null;
       });
   }
 
-  function initPdfPinchZoom() {
-    let startDistance = 0;
-    let startScale = 1;
-    let tempScale = 1;
-    let pinching = false;
+  function getDistance(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
 
-    function getCanvas() {
-      return document.getElementById('pdf-canvas');
-    }
-
-    function distance(touches) {
-      const dx = touches[0].clientX - touches[1].clientX;
-      const dy = touches[0].clientY - touches[1].clientY;
-
-      return Math.hypot(dx, dy);
-    }
-
-    viewer.addEventListener('touchstart', e => {
-      if (e.touches.length !== 2) return;
-
-      const canvas = getCanvas();
-      if (!canvas) return;
-
-      e.preventDefault();
-
-      pinching = true;
-      startDistance = distance(e.touches);
-      startScale = currentScale;
-      tempScale = 1;
-
-      canvas.style.transformOrigin = 'center center';
-      canvas.style.willChange = 'transform';
-    }, { passive: false });
-
-    viewer.addEventListener('touchmove', e => {
-      if (!pinching || e.touches.length !== 2) return;
-
-      const canvas = getCanvas();
-      if (!canvas) return;
-
-      e.preventDefault();
-
-      const d = distance(e.touches);
-      tempScale = Math.min(4, Math.max(0.7, d / startDistance));
-
-      canvas.style.transform = `scale(${tempScale})`;
-    }, { passive: false });
-
-    viewer.addEventListener('touchend', () => {
-      if (!pinching) return;
-
-      const canvas = getCanvas();
-      if (!canvas) return;
-
-      pinching = false;
-
-      canvas.style.transform = 'none';
-      canvas.style.willChange = 'auto';
-
-      currentScale = Math.min(4, Math.max(0.7, startScale * tempScale));
-
-      renderPdf();
-    }, { passive: false });
-
-    viewer.addEventListener('touchcancel', () => {
-      const canvas = getCanvas();
-
-      pinching = false;
-
-      if (canvas) {
-        canvas.style.transform = 'none';
-        canvas.style.willChange = 'auto';
-      }
-    }, { passive: false });
+    return Math.hypot(dx, dy);
   }
+
+  function getPdfPage() {
+    return document.getElementById('pdfPage');
+  }
+
+  viewer.addEventListener('touchstart', event => {
+    if (event.touches.length !== 2) return;
+
+    const pageWrap = getPdfPage();
+    if (!pageWrap) return;
+
+    event.preventDefault();
+
+    pinching = true;
+    startDistance = getDistance(event.touches);
+    startScale = currentScale;
+    tempScale = 1;
+
+    pageWrap.style.transformOrigin = 'center top';
+    pageWrap.style.willChange = 'transform';
+  }, { passive: false });
+
+  viewer.addEventListener('touchmove', event => {
+    if (!pinching || event.touches.length !== 2) return;
+
+    const pageWrap = getPdfPage();
+    if (!pageWrap) return;
+
+    event.preventDefault();
+
+    const distance = getDistance(event.touches);
+    tempScale = distance / startDistance;
+
+    tempScale = Math.min(4, Math.max(0.5, tempScale));
+
+    pageWrap.style.transform = `scale(${tempScale})`;
+  }, { passive: false });
+
+  viewer.addEventListener('touchend', event => {
+    if (!pinching) return;
+
+    const pageWrap = getPdfPage();
+    if (!pageWrap) return;
+
+    if (event.touches.length > 0) return;
+
+    pinching = false;
+
+    pageWrap.style.transform = 'none';
+    pageWrap.style.willChange = 'auto';
+
+    currentScale = startScale * tempScale;
+    currentScale = Math.min(4, Math.max(0.5, currentScale));
+
+    renderPdf();
+  }, { passive: false });
+
+  viewer.addEventListener('touchcancel', () => {
+    const pageWrap = getPdfPage();
+
+    pinching = false;
+
+    if (pageWrap) {
+      pageWrap.style.transform = 'none';
+      pageWrap.style.willChange = 'auto';
+    }
+  }, { passive: false });
 
   function closePdf() {
     overlay.style.display = 'none';
@@ -1194,30 +1207,35 @@
     pdfDoc = null;
     currentPage = null;
     currentScale = 1;
+    pinching = false;
 
     if (renderTask) {
       try {
         renderTask.cancel();
-      } catch (e) {
-        console.warn('Render cancel failed:', e);
+      } catch (error) {
+        console.warn('Render cancel error:', error);
       }
 
       renderTask = null;
     }
   }
 
-  document.getElementById('shareBtn').onclick = async () => {
-    if (navigator.share) {
-      await navigator.share({
-        title: document.title,
-        url: window.location.href
-      });
-    }
-  };
+  if (shareButton) {
+    shareButton.onclick = async () => {
+      if (navigator.share) {
+        await navigator.share({
+          title: document.title,
+          url: window.location.href
+        });
+      }
+    };
+  }
 
-  document.getElementById('searchBtn').onclick = () => {
-    console.log('Search clicked');
-  };
+  if (searchButton) {
+    searchButton.onclick = () => {
+      console.log('Search clicked');
+    };
+  }
 </script>
 
 </body>

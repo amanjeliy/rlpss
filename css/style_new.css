@@ -892,14 +892,12 @@ span.ver {
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
 	touch-action: none;
-	text-align: center;
 	background: #fff;
 }
 
 #pdf-canvas {
 	display: block;
 	margin: 0 auto;
-	transform-origin: center center;
 }
 
 #pdfViewer canvas {
@@ -936,4 +934,11 @@ span.ver {
 .pdf-action svg {
 	width: 26px;
 	height: 26px;
+}
+
+#pdfPage {
+	width: max-content;
+	margin: 0 auto;
+	transform-origin: center top;
+	will-change: transform;
 }
