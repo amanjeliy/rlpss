@@ -842,6 +842,7 @@ span.ver {
 	padding-bottom: 330px !important;
   }
 }
+
 #pdfOverlay {
 	position: fixed;
 	inset: 0;
@@ -850,6 +851,7 @@ span.ver {
 	display: none;
 	padding-top: env(safe-area-inset-top);
 	padding-bottom: env(safe-area-inset-bottom);
+	overflow: hidden;
 }
 
 .pdf-header {
@@ -882,14 +884,17 @@ span.ver {
 }
 
 #pdfViewer {
+	width: 100%;
+	height: calc(100% - 120px);
 	overflow: auto;
-	touch-action: none;
-	overscroll-behavior: contain;
-	background: #fff;
+	-webkit-overflow-scrolling: touch;
+	touch-action: pan-x pan-y;
+	text-align: center;
 }
 
 #pdf-canvas {
 	display: block;
+	margin: 0 auto;
 }
 
 #pdfViewer canvas {

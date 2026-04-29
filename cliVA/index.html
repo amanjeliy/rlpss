@@ -90,119 +90,6 @@
         .popup-fullmenu-3, .popup-fullmenu-4, .popup-fullmenu-5, .popup-fullmenu-6 {
             overflow-x: hidden !important;
         }
-
-        /* ===== iOS-style PDF viewer modal ===== */
-        #pdf-viewer-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 10000;
-            flex-direction: column;
-            background: #fff;
-            padding-top: env(safe-area-inset-top, 0px);
-            overflow: hidden;
-        }
-
-        #pdf-viewer-modal.open {
-            display: flex;
-        }
-
-        .pdf-nav {
-            height: 48px;
-            background: #fff;
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            padding: 0 16px calc(8px);
-            flex-shrink: 0;
-            position: relative;
-        }
-
-        .pdf-nav-title {
-            position: absolute;
-            left: 50%;
-            bottom: 18px;
-            transform: translateX(-50%);
-            font-size: 15px;
-            font-weight: 600;
-            color: #000;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 60%;
-        }
-
-        .pdf-nav-done {
-            background: none;
-            border: none;
-            color: #007aff;
-            font-size: 17px;
-            cursor: pointer;
-            padding: 0;
-            margin-left: auto;
-            z-index: 1;
-            -webkit-tap-highlight-color: transparent;
-            align-self: flex-end;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        .pdf-wrap {
-            flex: 1;
-            overflow: auto;
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
-            touch-action: pan-y pinch-zoom;
-            width: 100%;
-            height: 80%;
-            box-shadow: 0px 0 10px #0000002b;
-            margin: 7% 0;
-            position: relative;
-        }
-
-        #pdf-iframe {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: -15%;
-            left: -18%;
-            border: none;
-            display: block;
-            overflow: hidden !important;
-            transform: scale(.76);
-        }
-
-        .pdf-bar {
-            height: 52px;
-            background: #f6f6f6;
-            border-top: 1px solid #e5e5e5;
-            padding: 10px 20px 80px 20px;
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            flex-shrink: 0;
-            padding-bottom: env(safe-area-inset-bottom, 0px);
-            align-content: flex-start;
-        }
-
-        .pdf-bar-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #007aff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 11px;
-            gap: 2px;
-            -webkit-tap-highlight-color: transparent;
-            margin-bottom: 5px;
-        }
-
-        .pdf-bar-btn svg {
-            width: 26px;
-            height: 26px;
-        }
     </style>
 </head>
 <body>
@@ -441,7 +328,7 @@
     <ul>
         <li id="menu-1">Переглянути документ</li>
 
-        <li id="menu-2"><a href="vod.pdf">Завантажити PDF</a></li>
+        <li id="menu-2" class="download">Завантажити PDF</li>
 
         <li id="menu-3">Оновити документ</li>
         <!-- <li id="menu-7">Розширені дані з реєстру</li> -->
@@ -1122,103 +1009,150 @@
   });
 </script>
 
-<!-- iOS-style PDF viewer modal -->
-<div id="pdf-viewer-modal">
-    <div class="pdf-nav">
-        <span class="pdf-nav-title">Військово-обліковий документ</span>
-        <button class="pdf-nav-done" onclick="closePDFModal()">Done</button>
-    </div>
-    <div class="pdf-wrap">
-        <iframe id="pdf-iframe" src="" allow="fullscreen"></iframe>
-    </div>
-    <div class="pdf-bar">
-        <button class="pdf-bar-btn" onclick="sharePDF()" aria-label="Share">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="1.8" width="26" height="26">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
-            </svg>
-        </button>
-        <button class="pdf-bar-btn" aria-label="Search">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="1.8">
-                <circle cx="11" cy="11" r="8"/>
-                <path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
-            </svg>
-        </button>
-    </div>
-</div>
+<script src="../js/pdf.min.js"></script>
 <script>
-  (function(){
-    /* Only intercept click on iOS */
-    var isIOS = /^iP/i.test(navigator.platform) ||
-      (/Mac/.test(navigator.platform) && navigator.maxTouchPoints > 1);
-    if (!isIOS) return;
+  pdfjsLib.GlobalWorkerOptions.workerSrc = '../js/pdf.worker.min.js';
 
-    var _pdfUrl = '';
+  const overlay = document.getElementById('pdfOverlay');
+  const viewer = document.getElementById('pdfViewer');
 
-    /* Override menu-2 click */
-    document.addEventListener('DOMContentLoaded', function(){
-      var link = document.querySelector('#menu-2 a');
-      if (!link) return;
-      link.addEventListener('click', function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        _pdfUrl = link.href;
-        openPDFModal(_pdfUrl + '?view=1');
+  document.getElementById('menu-2').addEventListener('click', () => {
+    openPdf('vod.pdf');
+  });
+
+  document.getElementById('pdfDone').addEventListener('click', closePdf);
+
+  let pdfDoc = null;
+  let currentPage = null;
+  let currentScale = 1;
+  let renderTask = null;
+  let pinchInitialized = false;
+
+  function openPdf(url) {
+    overlay.style.display = 'block';
+    viewer.innerHTML = '';
+
+    const canvas = document.createElement('canvas');
+    canvas.id = 'pdf-canvas';
+    viewer.appendChild(canvas);
+
+    if (!pinchInitialized) {
+      initPdfPinchZoom();
+      pinchInitialized = true;
+    }
+
+    pdfjsLib.getDocument(url).promise
+      .then(pdf => {
+        pdfDoc = pdf;
+        return pdf.getPage(1);
+      })
+      .then(page => {
+        currentPage = page;
+
+        const unscaledViewport = page.getViewport({ scale: 1 });
+        const availableWidth = viewer.clientWidth || window.innerWidth;
+
+        currentScale = availableWidth / unscaledViewport.width;
+
+        renderPdf();
       });
+  }
+
+  function renderPdf() {
+    if (!currentPage) return;
+
+    const canvas = document.getElementById('pdf-canvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const viewport = currentPage.getViewport({ scale: currentScale });
+
+    if (renderTask) {
+      renderTask.cancel();
+      renderTask = null;
+    }
+
+    canvas.width = viewport.width * dpr;
+    canvas.height = viewport.height * dpr;
+
+    canvas.style.width = viewport.width + 'px';
+    canvas.style.height = viewport.height + 'px';
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    renderTask = currentPage.render({
+      canvasContext: ctx,
+      viewport
     });
+  }
 
-    window.openPDFModal = function(src){
-      /* Allow pinch-zoom in modal */
-      var vm = document.querySelector('meta[name="viewport"]');
-      if (vm) vm._orig = vm.getAttribute('content');
-      if (vm) vm.setAttribute('content',
-        'width=device-width, initial-scale=1');
-      /* Fix status bar: switch from black-translucent to default (white) */
-      var sbm = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
-      if (sbm) { sbm._orig = sbm.getAttribute('content'); sbm.setAttribute('content', 'default'); }
-      /* theme-color white for Chrome/Android */
-      var tc = document.querySelector('meta[name="theme-color"]') || document.createElement('meta');
-      tc.name = 'theme-color'; tc.id = 'tcm'; tc.content = '#ffffff';
-      if (!document.getElementById('tcm')) document.head.appendChild(tc);
-      document.getElementById('pdf-iframe').src = src + '#view=FitH';
-      document.getElementById('pdf-viewer-modal').classList.add('open');
-      document.body.style.overflow = 'hidden';
-    };
+  function initPdfPinchZoom() {
+    let startDistance = 0;
+    let startScale = 1;
+    let tempScale = 1;
+    let pinching = false;
 
-    window.closePDFModal = function(){
-      document.getElementById('pdf-viewer-modal').classList.remove('open');
-      document.getElementById('pdf-iframe').src = '';
-      document.body.style.overflow = '';
-      /* Restore viewport */
-      var vm = document.querySelector('meta[name="viewport"]');
-      if (vm && vm._orig) vm.setAttribute('content', vm._orig);
-      /* Restore status bar */
-      var sbm = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
-      if (sbm && sbm._orig) sbm.setAttribute('content', sbm._orig);
-      var tc = document.getElementById('tcm');
-      if (tc) tc.parentNode.removeChild(tc);
-    };
+    function distance(touches) {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.hypot(dx, dy);
+    }
 
-    window.sharePDF = function(){
-      if (navigator.share){
-        navigator.share({
-          title: 'Військово-обліковий документ',
-          url: _pdfUrl
-        });
-      } else {
-        window.open(_pdfUrl, '_blank');
-      }
-    };
+    viewer.addEventListener('touchstart', e => {
+      if (e.touches.length !== 2) return;
 
+      const canvas = document.getElementById('pdf-canvas');
+      if (!canvas) return;
 
+      e.preventDefault();
 
-    /* Close modal on background tap (not on content) */
-    document.getElementById('pdf-viewer-modal').addEventListener('click', function(e){
-      if (e.target === this) closePDFModal();
-    });
-  })();
+      pinching = true;
+      startDistance = distance(e.touches);
+      startScale = currentScale;
+      tempScale = 1;
+
+      canvas.style.transformOrigin = 'center center';
+      canvas.style.willChange = 'transform';
+    }, { passive: false });
+
+    viewer.addEventListener('touchmove', e => {
+      if (!pinching || e.touches.length !== 2) return;
+
+      const canvas = document.getElementById('pdf-canvas');
+      if (!canvas) return;
+
+      e.preventDefault();
+
+      const d = distance(e.touches);
+      tempScale = Math.min(5, Math.max(0.5, d / startDistance));
+
+      canvas.style.transform = `scale(${tempScale})`;
+    }, { passive: false });
+
+    viewer.addEventListener('touchend', () => {
+      if (!pinching) return;
+
+      const canvas = document.getElementById('pdf-canvas');
+      if (!canvas) return;
+
+      pinching = false;
+
+      canvas.style.transform = 'none';
+      canvas.style.willChange = 'auto';
+
+      currentScale = Math.min(5, Math.max(0.5, startScale * tempScale));
+      renderPdf();
+    }, { passive: false });
+  }
+
+  function closePdf() {
+    overlay.style.display = 'none';
+    viewer.innerHTML = '';
+    currentPage = null;
+    pdfDoc = null;
+  }
 </script>
 
 </body>
